@@ -14,9 +14,14 @@ struct Node {
   T val;
   Node *next;
 
-  Node();
-  Node(T _val);
-  Node(T _val, Node* _next);
+  Node() {}
+  Node(T _val) {
+    val = _val;
+  }
+  Node(T _val, Node* _next) {
+    val = _val;
+    next = _next;
+  }
 };
 
 /*
@@ -25,17 +30,17 @@ struct Node {
  */
 class Stream {
  private:
-  Node<char> char_stream;
+  Node<char>* char_stream;
   std::string file_name;
 
  public:
   Stream();
-  Stream(std::string file_name);
-  void SetFileName();
-  void Initialize();
+  Stream(std::string _file_name);
+  void SetFileName(std::string _file_name);
+  void Init();
   char Next() const;
+  char Cur() const;
   void MoveNext();
-  ~Stream();
 };
 
 #endif // #ifndef STREAM_H_INCLUDED

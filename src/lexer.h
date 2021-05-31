@@ -12,19 +12,20 @@
 class Lexer {
  private:
   static const std::regex kNumRegex;
-  static const std::regex kStringRegex;
   static const std::regex kSymbolRegex;
   static const std::unordered_set<std::string> kOperators; 
+  static const std::unordered_set<std::string> kString; 
   static const std::unordered_set<std::string> kPunctuation;
   static const std::unordered_set<std::string> kControl;
 
-  Stream* file_stream = new Stream();
+  Stream* file_stream;
 
  public:
   Lexer(std::string file_name);
-  std::vector<Token> Tokenize();
-  std::string ScanRegex(const std::regex format, char first_char);
+  std::string ScanRegex(const std::regex format);
   std::string ScanSet(const std::unordered_set<std::string> keywords);
+  std::string ScanString(const std::string delim);
+  std::vector<Token> Tokenize();
 };
  
 #endif // #ifndef LEXER_H_INCLUDED

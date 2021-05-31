@@ -4,22 +4,19 @@
 #include <string>
 
 enum Type {
+  LineBreak,
   Operator,
   Punctuation,
   Number,
-  String,
   Control,
-  Symbol
+  Symbol,
+  String
 };
 
 struct Token {
-  std::string value;
+  std::string val;
   Type type;
-  
-  Token(std::string _value, Type _type){
-    value = _value;
-    type = _type;
-  }
+  Token(std::string _val, Type _type);
 };
 
 #endif
