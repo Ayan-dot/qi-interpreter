@@ -15,6 +15,11 @@ enum Type {
 struct Token {
   std::string value;
   Type type;
+  
+  Token(std::string _value, Type _type){
+    value = _value;
+    type = _type;
+  }
 };
 
 #endif
