@@ -1,9 +1,9 @@
 #ifndef STREAM_H_INCLUDED
 #define STREAM_H_INCLUDED
 
+#include <fstream>
 #include <iostream>
 #include <string>
-#include <fstream>
 
 /**
  * A singly linked list implementation for the peekable stream used
