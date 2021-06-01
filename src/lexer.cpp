@@ -1,63 +1,117 @@
 #include "lexer.h"
 
-const std::regex Lexer::kNumRegex("\\[.0-9]");
-const std::regex Lexer::kSymbolRegex("[_a-zA-Z0-9]");
+extern std::unordered_map<std::string, OperationType> defined;
 
-const std::unordered_set<std::string> Lexer::kOperators = { ".", "++", "--", "not", "~", "*", "/", "%", "+", "–", "<<", ">>", "<", "<=", ">", ">=", "==", "!=", "&", "^", "|", "and", "or", "=", "–=", "+=", "*=", "/=", "%=", ">>=", "<<=", "&=", "|=", "^="};
-const std::unordered_set<std::string> Lexer::kPunctuation = { "{", "}" , "(", ")", "$", "//", "start", "end"};
-const std::unordered_set<std::string> Lexer::kControl = {"if", "else", "break", "continue", "while","for"};
+const std::string Lexer::kString = "\"";
+const std::string Lexer::kNumRegex = "[0-9.]";
+const std::string Lexer::kLineBreak = "\n";
+const std::string Lexer::kComment = "$";
+const std::string Lexer::kSymbolRegex = "[a-zA-Z_0-9]";
+const std::string Lexer::kOperatorRegex = "\\+|-|\\*|\\/|=|>|<|>=|<=|&|\\||%|!|\\^|\\(|\\)|\\.";
 
-Lexer::Lexer(std::string file_name) {
-  file_stream = new Stream(file_name);
-  file_stream->Init();
+Lexer::Lexer(Stream *_stream)
+{
+  stream = _stream;
+  stream->Init();
 }
 
-std::string Lexer::ScanRegex(const std::regex format) {
-  std::string val = std::to_string(file_stream->Cur());
-  while (std::regex_match(std::to_string(file_stream->Next()), format)) {
-    val.push_back(file_stream->Next());
-    file_stream->MoveNext();
+bool Lexer::Matches(char ch, std::string expr)
+{
+  std::string target = "";
+  target.push_back(ch);
+  std::regex regexp(expr);
+  return std::regex_match(target, regexp);
+}
+
+std::string Lexer::ScanRegex(std::string expr)
+{
+  std::string ret;
+  ret.push_back(stream->Curr());
+
+  while (Matches(stream->GetNext(), expr))
+  {
+    ret.push_back(stream->GetNext());
+    stream->MoveNext();
   }
-  return val;
+
+  return ret;
 }
 
-std::string Lexer::ScanSet(const std::unordered_set<std::string> keywords) {
-  std::string val = std::to_string(file_stream->Cur());
-  while (keywords.find(std::to_string(file_stream->Next())) != keywords.end()) {
-    val.push_back(file_stream->Next());
-    file_stream->MoveNext();
+std::string Lexer::ScanString(char delim)
+{
+  std::string ret = "";
+  while (stream->GetNext() != '\0')
+  {
+    stream->MoveNext();
+    if (stream->Curr() == delim)
+      return ret;
+    ret.push_back(stream->Curr());
   }
-  return val;
+  std::cerr << "Error: you opened a string that you did not close.";
+  std::exit(0);
+  return ret;
 }
 
-std::string Lexer::ScanString(const std::string delim) {
-  std::string val = "";
-  while (std::to_string(file_stream->Next()) != delim) {
-    val.push_back(file_stream->Next());
-    file_stream->MoveNext();
+void Lexer::IgnoreLine()
+{
+  while (stream->GetNext() != '\0')
+  {
+    stream->MoveNext();
+    if (Matches(stream->Curr(), kLineBreak))
+      return;
   }
-  file_stream->MoveNext();
-  return val;
 }
 
-std::vector<Token> Lexer::Tokenize() {
+std::vector<Token> Lexer::Tokenize()
+{
   std::vector<Token> tokens;
-  while (file_stream->Next() != '\0') {
-    file_stream->MoveNext();
-    char curr = file_stream->Cur();
-    if (curr == ' ')
-      continue;
-    else if (curr == '\n')
-      tokens.push_back(Token("\n", LineBreak));
-    else if (kOperators.find(std::to_string(curr)) != kOperators.end())
-      tokens.push_back(Token(ScanSet(kOperators), Operator));
-    else if (kPunctuation.find(std::to_string(curr)) != kPunctuation.end())
-      tokens.push_back(Token(ScanSet(kPunctuation), Operator));
-    else if (std::regex_match(std::to_string(curr), kNumRegex))
-      tokens.push_back(Token(ScanRegex(kNumRegex), Number));
-    else
-      throw "Error: Invalid character sequence.";
-  }
 
+  while (stream->GetNext() != '\0')
+  {
+    stream->MoveNext();
+    char curr = stream->Curr();
+    if (curr == -1)
+    {
+      tokens.push_back(Token("EOF", END, NONE));
+      break;
+    }
+    else if (curr == ' ')
+      continue;
+    else if (curr == '"')
+      tokens.push_back(Token(ScanString('"'), STRING, NONE));
+    else if (Matches(curr, kNumRegex))
+      tokens.push_back(Token(ScanRegex(kNumRegex), NUMBER, NONE));
+    else if (Matches(curr, kLineBreak))
+    {
+      std::string dummy = ScanRegex(kLineBreak);
+      tokens.push_back(Token("LINEBREAK", LINEBREAK, NONE));
+    }
+    else if (Matches(curr, kComment))
+      IgnoreLine();
+    else if (Matches(curr, kSymbolRegex))
+    {
+      std::string val = ScanRegex(kSymbolRegex);
+      if (defined.find(val) != defined.end())
+        tokens.push_back(Token(val, BUILTIN, defined[val]));
+      else
+        tokens.push_back(Token(val, SYMBOL));
+    }
+    else if (Matches(curr, kOperatorRegex))
+    {
+      std::string val = ScanRegex(kOperatorRegex);
+      if (defined.find(val) != defined.end())
+        tokens.push_back(Token(val, BUILTIN, defined[val]));
+      else
+      {
+        std::cerr << "Error: unrecognized symbol \"" << val << "\".\n";
+        exit(1);
+      }
+    }
+    else
+    {
+      std::cerr << "Error: unrecognized symbol \"" << curr << "\".\n";
+      exit(1);
+    }
+  }
   return tokens;
 }

@@ -1,46 +1,54 @@
 #include "stream.h"
+#include <iostream>
+#include <stdlib.h>
 
-void Stream::SetFileName(std::string _file_name) {
-  std::ifstream f(_file_name);
-  if (!f.good())
-    throw "Error: file does not exist.";
-
-  f.close();
-  file_name = _file_name;
-}
-
-Stream::Stream() {
+Stream::Stream()
+{
   file_name = "";
-  char_stream = new Node<char>();
+  stream = new StreamNode();
 }
 
-Stream::Stream(std::string _file_name) {
-  SetFileName(_file_name);
+Stream::Stream(std::string _file_name)
+{
+  std::ifstream f(_file_name);
+  if (f.good())
+    file_name = _file_name;
+  else
+  {
+    std::cerr << "Error: file does not exist.";
+    exit(1);
+  }
+  f.close();
+  stream = new StreamNode();
 }
 
-void Stream::Init() {
-  std::ifstream input(file_name);
+void Stream::Init()
+{
+  std::ifstream feed(file_name);
   char curr;
-  Node<char>* head = char_stream;
-
-  while (input.good()) {
-    curr = input.get();
-    head->next = new Node<char>(curr);
+  StreamNode *head = stream;
+  while (feed.good())
+  {
+    curr = feed.get();
+    head->next = new StreamNode(curr);
     head = head->next;
   }
 }
 
-char Stream::Next() const {
-  return char_stream->next ? char_stream->next->val : '\0';
+char Stream::GetNext() const
+{
+  return stream->next ? stream->next->val : '\0';
 }
 
-char Stream::Cur() const {
-  return char_stream->val;
+char Stream::Curr() const
+{
+  return stream->val;
 }
 
-void Stream::MoveNext() {
-  if (char_stream->next)
-    char_stream = char_stream->next;
+void Stream::MoveNext()
+{
+  if (stream->next)
+    stream = stream->next;
   else
     throw "Error: no characters in stream.";
 }
