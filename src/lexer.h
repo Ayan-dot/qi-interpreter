@@ -40,7 +40,7 @@ consume operator while (/[\W\S_]/) applies
 => check if operator is built-in; if not, throw err
 */
   Stream *stream;
-
+  int line_num;
   static const int checkEOF = EOF;
   static const std::string kString;
   static const std::string kNumRegex;
@@ -53,6 +53,7 @@ public:
   Lexer(Stream *_stream);
   bool Matches(char ch, std::string expr);
   std::string ScanRegex(std::string expr);
+  void ScanLnBreak();
   std::string ScanString(char delim);
   void IgnoreLine();
   std::vector<Token> Tokenize();

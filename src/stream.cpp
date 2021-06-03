@@ -15,7 +15,7 @@ Stream::Stream(std::string _file_name)
     file_name = _file_name;
   else
   {
-    std::cerr << "Error: file does not exist.";
+    std::cerr << "Error: file does not exist: " << file_name << ".";
     exit(1);
   }
   f.close();
