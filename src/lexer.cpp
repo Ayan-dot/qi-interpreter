@@ -7,11 +7,11 @@ const std::string Lexer::kNumRegex = "[0-9.]";
 const std::string Lexer::kLineBreak = "\n";
 const std::string Lexer::kComment = "$";
 const std::string Lexer::kSymbolRegex = "[a-zA-Z_0-9]";
-const std::string Lexer::kOperatorRegex = "\\+|-|\\*|\\/|=|>|<|>=|<=|&|\\||%|!|\\^|\\(|\\)|\\.";
+const std::string Lexer::kOperatorRegex = "\\+|-|\\*|\\/|=|>|<|>=|<=|&|\\||%|!|\\^|\\(|\\)|\\.|\\,";
 
 Lexer::Lexer(Stream *_stream)
 {
-  line_num = 0;
+  line_num = 1;
   stream = _stream;
   stream->Init();
 }
@@ -39,7 +39,8 @@ std::string Lexer::ScanRegex(std::string expr)
 }
 void Lexer::ScanLnBreak()
 {
-  while(Matches(stream->GetNext(), kLineBreak)){
+  while (Matches(stream->GetNext(), kLineBreak))
+  {
     line_num++;
     stream->MoveNext();
   }

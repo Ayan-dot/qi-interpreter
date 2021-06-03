@@ -1,6 +1,7 @@
 #ifndef EXPR_H_
 #define EXPR_H_
 
+#include <iostream>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -12,17 +13,61 @@ class ASTNode
 private:
   std::vector<ASTNode> children;
   static const std::vector<std::unordered_set<std::string>> pre;
+  static const std::unordered_set<std::string> control;
   Token op;
 
 public:
   ASTNode();
   ASTNode(std::vector<Token> tokens);
   static void Init();
-  void EvalChildren();
+  std::vector<std::pair<int, int>> GetBlocks(std::vector<Token> &tokens);
+  std::vector<Token> SubArray(std::vector<Token> &arr, int i, int j);
 };
 
 /*
+```
+if condition start
+  
+end
 
+num x = 7
+
+num sq = x * x
+
+out sq
+
+simple: num y = 10
+
+
+out y
+
+if condition start
+  num x = 7
+  num cb = x * x * x
+  out cb
+end
+```
+
+1) check blocks
+    a) iterate through tokens
+    b) mark every start and end
+    b.2) mark every unnested line break
+    c) save them
+    d) separate them
+
+                              // blocks ==> conditional, function calls, 
+
+4*5/2-1
+ ^
+
+idx 1 is OP
+check OP n-ary ===> binary
+1) tokens[:1] is first child
+2) tokens[2:] is second child
+
+*/
+
+/*
 vector<hashset<string> > pre;
 
 ======> tokens to initialize the expr

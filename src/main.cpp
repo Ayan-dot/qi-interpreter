@@ -5,6 +5,7 @@
 #include "stream.h"
 #include "token.h"
 #include "lexer.h"
+#include "ast_node.h"
 
 int main(int argc, char *argv[])
 {
@@ -18,9 +19,7 @@ int main(int argc, char *argv[])
   Token::Init();
   Stream *stream = new Stream(file_name);
   Lexer *lexer = new Lexer(stream);
-  std::vector<Token> tokens = lexer->Tokenize();
+  ASTNode *ast = new ASTNode(lexer->Tokenize());
 
-  for (const Token &token : tokens)
-    std::cout << "<Token val: " << token.val << ", type: " << token.token_type << ", op: " << token.operation_type << ">\n";
   return 0;
 }

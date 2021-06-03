@@ -1,7 +1,7 @@
 #include "token.h"
 
 std::unordered_map<std::string, OperationType> defined;
-
+// add line num
 Token::Token()
 {
   val = "\0";
@@ -40,6 +40,8 @@ Token::Token(char _val, TokenType _token_type, OperationType _operation_type)
 void Token::Init()
 {
   defined.insert(std::make_pair("+", BINARY));
+  defined.insert(std::make_pair("++", UNARY));
+  defined.insert(std::make_pair("--", UNARY));
   defined.insert(std::make_pair("-", BINARY));
   defined.insert(std::make_pair("*", BINARY));
   defined.insert(std::make_pair("/", BINARY));
@@ -69,7 +71,8 @@ void Token::Init()
   defined.insert(std::make_pair("and", BINARY));
   defined.insert(std::make_pair("not", UNARY));
   defined.insert(std::make_pair("or", BINARY));
-  defined.insert(std::make_pair("if", TERTIARY));
+  defined.insert(std::make_pair("if", BINARY));
+  defined.insert(std::make_pair("elsif", BINARY));
   defined.insert(std::make_pair("start", NONE));
   defined.insert(std::make_pair("end", NONE));
   defined.insert(std::make_pair("break", NONE));
