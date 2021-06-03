@@ -11,6 +11,7 @@ const std::string Lexer::kOperatorRegex = "\\+|-|\\*|\\/|=|>|<|>=|<=|&|\\||%|!|\
 
 Lexer::Lexer(Stream *_stream)
 {
+  line_num = 0;
   stream = _stream;
   stream->Init();
 }
@@ -36,7 +37,13 @@ std::string Lexer::ScanRegex(std::string expr)
 
   return ret;
 }
-
+void Lexer::ScanLnBreak()
+{
+  while(Matches(stream->GetNext(), kLineBreak)){
+    line_num++;
+    stream->MoveNext();
+  }
+}
 std::string Lexer::ScanString(char delim)
 {
   std::string ret = "";
@@ -47,7 +54,7 @@ std::string Lexer::ScanString(char delim)
       return ret;
     ret.push_back(stream->Curr());
   }
-  std::cerr << "Error: you opened a string that you did not close.";
+  std::cerr << "Error: you opened a string that you did not close at line " << line_num << ".\n";
   std::exit(0);
   return ret;
 }
@@ -83,7 +90,8 @@ std::vector<Token> Lexer::Tokenize()
       tokens.push_back(Token(ScanRegex(kNumRegex), NUMBER, NONE));
     else if (Matches(curr, kLineBreak))
     {
-      std::string dummy = ScanRegex(kLineBreak);
+      line_num++;
+      ScanLnBreak();
       tokens.push_back(Token("LINEBREAK", LINEBREAK, NONE));
     }
     else if (Matches(curr, kComment))
@@ -103,13 +111,13 @@ std::vector<Token> Lexer::Tokenize()
         tokens.push_back(Token(val, BUILTIN, defined[val]));
       else
       {
-        std::cerr << "Error: unrecognized symbol \"" << val << "\".\n";
+        std::cerr << "Error: unrecognized symbol \"" << val << "\" at line " << line_num << ".\n";
         exit(1);
       }
     }
     else
     {
-      std::cerr << "Error: unrecognized symbol \"" << curr << "\".\n";
+      std::cerr << "Error: unrecognized symbol \"" << curr << "\" at line " << line_num << ".\n";
       exit(1);
     }
   }

@@ -10,6 +10,7 @@ OUT := build
 CXX := g++
 FLAGS := -std=c++11
 NAME := qi
+ARGS := test.qi
 
 .DEFAULT_GOAL := compile
 
@@ -18,7 +19,7 @@ compile:
 	${CXX} ${FLAGS} ${SRC}/*.cpp -o ${OUT}/${NAME}
 
 run:
-	./${OUT}/${NAME}
+	./${OUT}/${NAME} ${ARGS}
 
 clean:
 	@echo [INFO] Cleaning the build directory...

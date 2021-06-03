@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 
   std::string file_name(argv[1]);
   if (file_name.size() < 4 || file_name.substr(file_name.size() - 3) != ".qi")
-    std::cerr << "Error: invalid file name.";
+    std::cerr << "Error: invalid file name: " << file_name << ".";
 
   Token::Init();
   Stream *stream = new Stream(file_name);
