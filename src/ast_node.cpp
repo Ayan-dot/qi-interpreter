@@ -25,16 +25,16 @@ ast_node::ast_node(std::vector<token> tokens) {
             // end
             //
             // the keyword can thus be seen as a binary operator, with the condition as the first node
-            // and
+            // and the inner block as the second node
             val = tokens[0];
             int start;
             for (start = 2; start < tokens.size() - 1; ++start)
                 if (tokens[start].val == "start")
                     break;
-            children.emplace_back(ast_node::subarray(tokens, 1, start - 1)); // returns the conditional for the control flow as a child
+            children.emplace_back(ast_node::subarray(tokens, 1, start - 1));
             if (tokens.size() - start < 4)
                 throw_error("empty block", tokens[start].line_number);
-            children.emplace_back(ast_node::subarray(tokens, start + 2, (int) tokens.size() - 2)); // instantiates child within the start end wrapper
+            children.emplace_back(ast_node::subarray(tokens, start + 2, (int) tokens.size() - 2));
         }
         // terminal node, no need to return a child
         else if (tokens.size() == 1)

@@ -10,7 +10,7 @@ OUT := build
 CXX := g++
 FLAGS := -std=c++11
 NAME := qi
-ARGS := test.qi
+ARGS := tests/test.qi
 
 .DEFAULT_GOAL := compile
 

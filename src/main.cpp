@@ -13,14 +13,9 @@ int main(int argc, char *argv[]) {
         throw_error("invalid arguments");
     token::init();
 
-    info("reading file");
     file_stream _file_stream = file_stream(std::string(argv[1]));
-
-    info("tokenizing with lexer");
     lexer _lexer(_file_stream);
     std::vector<token> tokens = _lexer.tokenize();
-
-    info("creating AST");
     ast_node ast = ast_node(tokens);
 
     return 0;
