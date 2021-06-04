@@ -1,34 +1,34 @@
 #include "ast_node.h"
 
-ast_node::ast_node(std::vector<token> tokens) {
+ast_node::ast_node(std::vector<token> tokens) { // constructor to initialize parsing process; divides node into blocks and therein respective children
     std::vector<std::pair<int, int>> blocks = ast_node::gen_blocks(tokens);
     if (blocks.empty())
         throw_error("parsing error");
-    else if (blocks.size() >= 2) {
+    else if (blocks.size() >= 2) { // if there are multiple start ends or external lines
         val = token("GROUP", tokens[0].line_number, group, (int) blocks.size());
         for (const std::pair<int, int> &block : blocks)
             children.emplace_back(ast_node::subarray(tokens, block.first, block.second));
     }
-    else {
+    else { // in the case of a single non nested control flow block or a single line that is non nested in the parent scope
         tokens = subarray(tokens, blocks[0].first, blocks[0].second);
         if (tokens.back().val == "end") {
             val = tokens[0];
             int start;
-            for (start = 2; start < tokens.size() - 1; ++start)
+            for (start = 2; start < tokens.size() - 1; ++start) // finds start builtin to return nested block as a child
                 if (tokens[start].val == "start")
                     break;
-            children.emplace_back(ast_node::subarray(tokens, 1, start - 1));
+            children.emplace_back(ast_node::subarray(tokens, 1, start - 1)); // returns the conditional for the control flow as a child
             if (tokens.size() - start < 4)
                 throw_error("empty block", tokens[start].line_number);
-            children.emplace_back(ast_node::subarray(tokens, start + 2, (int) tokens.size() - 2));
+            children.emplace_back(ast_node::subarray(tokens, start + 2, (int) tokens.size() - 2)); // instantiates child within the start end wrapper
         } else if (tokens.size() == 1)
-            val = tokens[0];
+            val = tokens[0]; // terminal node, no need to return a child
         else {
             int pre = token::highest_pre + 1, lowest_pre = -1;
             for (int i = 0; i < tokens.size(); ++i)
                 if (tokens[i].type == builtin && token::precedence[tokens[i].val] < pre)
-                    pre = token::precedence[tokens[i].val], lowest_pre = i;
-            if (lowest_pre == -1)
+                    pre = token::precedence[tokens[i].val], lowest_pre = i; // find lowest precedence operator in the expression
+            if (lowest_pre == -1) // index not found
                 throw_error("unrecognized symbol in expression", tokens[0].line_number);
             val = tokens[lowest_pre];
             if (val.ops == 1) {
