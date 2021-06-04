@@ -1,5 +1,5 @@
 # Usage:
-# make 					compile all binary
+# make 				compile all binary
 # make clean		remove all binaries and objects
 
 .PHONY = all compile clean
@@ -15,12 +15,12 @@ ARGS := test.qi
 .DEFAULT_GOAL := compile
 
 compile:
-	@echo [INFO] Compiling objects...
 	${CXX} ${FLAGS} ${SRC}/*.cpp -o ${OUT}/${NAME}
+	@echo [info] compiled to ./${OUT}/${NAME}
 
 run:
 	./${OUT}/${NAME} ${ARGS}
 
 clean:
-	@echo [INFO] Cleaning the build directory...
+	@echo [info] cleaning build directory
 	@rm ${OUT}/*

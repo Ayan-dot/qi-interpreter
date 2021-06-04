@@ -1,3 +1,0 @@
-num myNum <<= 10
-
-num myNum <<<= 20
