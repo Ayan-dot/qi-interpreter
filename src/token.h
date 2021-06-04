@@ -1,48 +1,36 @@
-#ifndef TOKEN_H_
-#define TOKEN_H_
+#ifndef QI_TOKEN_H
+#define QI_TOKEN_H
 
 #include <string>
+#include <sstream>
 #include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 
-/*
-it allows O(1) lookup time for built-in and O(1) reference to op type
-unordered_map<str, OperationType>
-*/
-
-enum TokenType
-{
-  UNDEFINED, // 0
-  STRING,    // 1
-  NUMBER,    // 2
-  LINEBREAK, // 3
-  COMMENT,   // 4
-  END,       // 5
-  SYMBOL,    // 6
-  BUILTIN    // 7
+enum token_type {
+    null,
+    str,
+    num,
+    linebreak,
+    eof,
+    symbol,
+    builtin,
+    group
 };
 
-enum OperationType
-{
-  NONE,
-  UNARY,
-  BINARY,
-  TERTIARY,
-  DYNAMIC
+struct token {
+    std::string val;
+    token_type type;
+    int ops, line_number;
+    static std::unordered_map<std::string, int> builtins;
+    static std::unordered_map<std::string, int> precedence;
+    static int highest_pre;
+    static std::unordered_set<std::string> control;
+
+    explicit token(std::string _val = "", int _line_number = -1, token_type _type = null, int _ops = 0);
+    static void init();
+    std::string str() const;
 };
 
-class Token
-{
-public:
-  std::string val;
-  TokenType token_type;
-  OperationType operation_type;
-
-  Token();
-  Token(std::string _val, TokenType _token_type);
-  Token(std::string _val, TokenType _token_type, OperationType _operation_type);
-  Token(char _val, TokenType _token_type);
-  Token(char _val, TokenType _token_type, OperationType _operation_type);
-  static void Init();
-};
-
-#endif
+#endif //QI_TOKEN_H

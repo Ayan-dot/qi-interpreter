@@ -1,62 +1,29 @@
-#ifndef LEXER_H_
-#define LEXER_H_
+#ifndef QI_LEXER_H
+#define QI_LEXER_H
 
 #include <iostream>
 #include <regex>
 #include <string>
+#include <vector>
 
+#include "error.h"
+#include "file_stream.h"
 #include "token.h"
-#include "stream.h"
 
-class Lexer
-{
+class lexer {
 private:
-  /*
--> string ==> "
-read "
-consume until " or throw err if linebreak
-
--> number ==> [0-9.]
-read [0-9.]
-consume until not [0-9.]
-
--> linebreak ==> \n
-ignore / create new branch
-
--> single-line comment ==> $
-read $
-consume and discard until linebreak
-
--> end ==> EOF (non-regex)
-end
-
--> symbol ==> [a-zA-z_0-9]
-consume symbol while [a-zA-z_0-9]
-=> check if symbol is built-in; if so, label as such
-
--> operator ==> (\+|-|\*|\/|=|>|<|>=|<=|&|\||%|!|\^|\(|\).) 
-read = (/[\W\S_]/) // \W renives word chars so a-z, A-Z, 0-9 \S removes whitespace and _
-consume operator while (/[\W\S_]/) applies
-=> check if operator is built-in; if not, throw err
-*/
-  Stream *stream;
-  int line_num;
-  static const int checkEOF = EOF;
-  static const std::string kString;
-  static const std::string kNumRegex;
-  static const std::string kLineBreak;
-  static const std::string kComment;
-  static const std::string kSymbolRegex;
-  static const std::string kOperatorRegex;
+    file_stream stream;
+    int line_number;
+    static const std::string r_num, r_lb, r_comment, r_symbol, r_op;
 
 public:
-  Lexer(Stream *_stream);
-  bool Matches(char ch, std::string expr);
-  std::string ScanRegex(std::string expr);
-  void ScanLnBreak();
-  std::string ScanString(char delim);
-  void IgnoreLine();
-  std::vector<Token> Tokenize();
+    explicit lexer(file_stream _stream);
+    bool matches(const char& c, const std::string& expr) const;
+    std::string scan_regex(const std::string& expr);
+    std::string scan_str(const char& delim = '"');
+    void scan_lb();
+    void scan_comment();
+    std::vector<token> tokenize();
 };
 
-#endif // LEXER_H
+#endif //QI_LEXER_H

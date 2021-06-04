@@ -1,25 +1,27 @@
-#include <iostream>
-#include <string>
-#include <vector>
+#include "main.h"
 
-#include "stream.h"
-#include "token.h"
-#include "lexer.h"
-#include "ast_node.h"
+inline void info(std::string s) {
+    std::cout << "[info] " << s << std::endl;
+}
 
-int main(int argc, char *argv[])
-{
-  if (argc == 1 || argc > 2)
-    throw "Error: invalid argument count.";
+// Entry point for the executable based on the command line. To run
+// a qi file, place the executable in your folder and run:
+//     $ ./qi filename.qi
+int main(int argc, char *argv[]) {
+    // Validate arguments
+    if (argc != 2)
+        throw_error("invalid arguments");
+    token::init();
 
-  std::string file_name(argv[1]);
-  if (file_name.size() < 4 || file_name.substr(file_name.size() - 3) != ".qi")
-    std::cerr << "Error: invalid file name: " << file_name << ".";
+    info("reading file");
+    file_stream _file_stream = file_stream(std::string(argv[1]));
 
-  Token::Init();
-  Stream *stream = new Stream(file_name);
-  Lexer *lexer = new Lexer(stream);
-  ASTNode *ast = new ASTNode(lexer->Tokenize());
+    info("tokenizing with lexer");
+    lexer _lexer(_file_stream);
+    std::vector<token> tokens = _lexer.tokenize();
 
-  return 0;
+    info("creating AST");
+    ast_node ast = ast_node(tokens);
+
+    return 0;
 }
