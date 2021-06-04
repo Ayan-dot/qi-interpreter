@@ -23,8 +23,8 @@ struct token {
     std::string val;
     token_type type;
     int ops, line_number;
-    static std::unordered_map<std::string, int> builtins;
-    static std::unordered_map<std::string, int> precedence;
+    static std::unordered_map<std::string, std::pair<int, int>> builtins;
+    //static std::unordered_map<std::string, int> precedence;
     static int highest_pre;
     static std::unordered_set<std::string> control;
 

@@ -26,8 +26,8 @@ ast_node::ast_node(std::vector<token> tokens) {
         else {
             int pre = token::highest_pre + 1, lowest_pre = -1;
             for (int i = 0; i < tokens.size(); ++i)
-                if (tokens[i].type == builtin && token::precedence[tokens[i].val] < pre)
-                    pre = token::precedence[tokens[i].val], lowest_pre = i;
+                if (tokens[i].type == builtin && token::builtins[tokens[i].val].second < pre)
+                    pre = token::builtins[tokens[i].val].second, lowest_pre = i;
             if (lowest_pre == -1)
                 throw_error("unrecognized symbol in expression", tokens[0].line_number);
             val = tokens[lowest_pre];

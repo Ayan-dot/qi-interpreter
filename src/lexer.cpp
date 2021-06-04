@@ -77,14 +77,14 @@ std::vector<token> lexer::tokenize() {
         else if (matches(curr, r_symbol)) {
             std::string val = scan_regex(r_symbol);
             if (token::builtins.find(val) != token::builtins.end())
-                tokens.emplace_back(val, line_number, builtin, token::builtins[val]);
+                tokens.emplace_back(val, line_number, builtin, token::builtins[val].first);
             else
                 tokens.emplace_back(val, line_number, symbol);
         }
         else if (matches(curr, r_op)) {
             std::string val = scan_regex(r_op);
             if (token::builtins.find(val) != token::builtins.end())
-                tokens.emplace_back(val, line_number, builtin, token::builtins[val]);
+                tokens.emplace_back(val, line_number, builtin, token::builtins[val].first);
             else
                 throw_error("unrecognized operator", line_number);
         }
