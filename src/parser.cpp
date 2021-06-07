@@ -37,13 +37,14 @@ parser::parser(std::vector<token>& tokens) {
         global_vars[identifier] = new qi_str(
             identifier,
             ast_node(ast_node::subarray(tokens, start, parse_ind - 1)));
-      else if (tokens[parse_ind].val == "num")
+      else if (tokens[parse_ind].val == "bool")
         global_vars[identifier] = new qi_bool(
             identifier,
             ast_node(ast_node::subarray(tokens, start, parse_ind - 1)));
 
       parse_ind++;
-    } else if (tokens[parse_ind].val == "fn") {
+    } 
+    else if (tokens[parse_ind].val == "fn") {
       if (tokens.size() - parse_ind < 9)
         throw_error("program ends before function declaration finishes",
                     tokens[parse_ind].line_number);
