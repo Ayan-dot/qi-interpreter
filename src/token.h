@@ -27,6 +27,7 @@ struct token {
     //static std::unordered_map<std::string, int> precedence;
     static int highest_pre;
     static std::unordered_set<std::string> control;
+    static std::unordered_set<std::string> vars;
 
     explicit token(std::string _val = "", int _line_number = -1, token_type _type = null, int _ops = 0);
     static void init();

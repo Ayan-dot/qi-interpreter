@@ -2,6 +2,7 @@
 
 std::unordered_map<std::string, std::pair<int, int>> token::builtins = std::unordered_map<std::string,std::pair<int, int>>();
 std::unordered_set<std::string> token::control = std::unordered_set<std::string>();
+std::unordered_set<std::string> token::vars = std::unordered_set<std::string>();
 int token::highest_pre = 12;
 
 token::token(std::string _val, int _line_number, token_type _type, int _ops) {
@@ -67,6 +68,11 @@ void token::init() {
     token::control.insert("else");
     token::control.insert("for");
     token::control.insert("while");
+
+    token::vars.insert("num");
+    token::vars.insert("str");
+    token::vars.insert("arr");
+    token::vars.insert("bool");
 }
 
 std::string token::str() const {
