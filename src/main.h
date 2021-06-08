@@ -8,5 +8,6 @@
 #include "file_stream.h"
 #include "lexer.h"
 #include "token.h"
+#include "parser.h"
 
 #endif //QI_MAIN_H
