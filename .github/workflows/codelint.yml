@@ -2,7 +2,7 @@ name: Codebase Linter
 on:
   push:
   pull_request:
-    branches: [main]
+    branches: []
 jobs: 
   build:
     name: Codebase Linter
