@@ -14,6 +14,7 @@ token::token(std::string _val, int _line_number, token_type _type, int _ops) {
 
 void token::init() {
     // init builtins
+    // pair<int, int>: {operations, precedence}
     token::builtins["+"] = std::pair<int, int>(2, 2);
     token::builtins["-"] = std::pair<int, int>(2, 5);
     token::builtins["*"] = std::pair<int, int>(2, 6);
@@ -62,6 +63,7 @@ void token::init() {
     token::builtins["fn"] = std::pair<int, int>(4, 2 * token::highest_pre);
     token::builtins["("] = std::pair<int, int>(0, 2 * token::highest_pre);
     token::builtins[")"] = std::pair<int, int>(0, 2 * token::highest_pre);
+    token::builtins["."] = std::pair<int, int>(2, 2);
 
     // init the control structure keywords
     token::control.insert("if");

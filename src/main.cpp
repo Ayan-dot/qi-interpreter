@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
     lexer _lexer(_file_stream);
     std::vector<token> tokens = _lexer.tokenize();
     ast_node ast = ast_node(tokens);
+    ast.print();
 
     return 0;
 }

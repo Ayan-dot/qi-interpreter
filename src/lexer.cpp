@@ -50,8 +50,10 @@ void lexer::scan_lb() {
 void lexer::scan_comment() {
     while (stream.next() != '\0') {
         stream.move();
-        if (matches(stream.curr(), r_lb))
+        if (matches(stream.curr(), r_lb)) {
+            ++line_number;
             return;
+        }
     }
 }
 
@@ -72,7 +74,7 @@ std::vector<token> lexer::tokenize() {
             ++line_number; scan_lb();
             tokens.emplace_back("LB", line_number, linebreak);
         }
-        else if (matches(curr, r_comment))
+        else if (curr == r_comment.front())
             scan_comment();
         else if (matches(curr, r_symbol)) {
             std::string val = scan_regex(r_symbol);
@@ -82,11 +84,19 @@ std::vector<token> lexer::tokenize() {
                 tokens.emplace_back(val, line_number, symbol);
         }
         else if (matches(curr, r_op)) {
-            std::string val = scan_regex(r_op);
-            if (token::builtins.find(val) != token::builtins.end())
+            if (curr == '(' || curr == ')') {
+                std::string val;
+                val.push_back(curr);
                 tokens.emplace_back(val, line_number, builtin, token::builtins[val].first);
-            else
-                throw_error("unrecognized operator", line_number);
+                continue;
+            }
+            else {
+                std::string val = scan_regex(r_op);
+                if (token::builtins.find(val) != token::builtins.end())
+                    tokens.emplace_back(val, line_number, builtin, token::builtins[val].first);
+                else
+                    throw_error("unrecognized operator", line_number);
+            }
         }
         else
             throw_error("unrecognized symbol", line_number);

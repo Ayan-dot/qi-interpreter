@@ -1,3 +1,1 @@
-if condition start
-  num x = A * (B - C)
-end
+x += 10 * y(20^10+45)
