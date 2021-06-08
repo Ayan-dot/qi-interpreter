@@ -1,3 +1,9 @@
-if condition start
-  num x = A * (B - C)
+num globalR = 20
+fn caller num (num yourNum str myNum) start
+  fine = yourNum + myNum 
+end
+fn main void (void) start 
+  if condition start
+  num x = A * C
+  end
 end

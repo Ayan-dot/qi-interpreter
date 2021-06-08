@@ -15,7 +15,7 @@ ARGS := tests/test.qi
 .DEFAULT_GOAL := compile
 
 compile:
-	${CXX} ${FLAGS} ${SRC}/*.cpp -o ${OUT}/${NAME}
+	${CXX} ${FLAGS} ${SRC}/*.cpp ${SRC}/interpreter/*.cpp -o ${OUT}/${NAME}
 	@echo [info] compiled to ./${OUT}/${NAME}
 
 run:

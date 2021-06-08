@@ -12,11 +12,11 @@ int main(int argc, char *argv[]) {
     if (argc != 2)
         throw_error("invalid arguments");
     token::init();
-
+    qi_fn::init();
     file_stream _file_stream = file_stream(std::string(argv[1]));
     lexer _lexer(_file_stream);
     std::vector<token> tokens = _lexer.tokenize();
-    ast_node ast = ast_node(tokens);
+    parser _parser = parser(tokens);
 
     return 0;
 }
