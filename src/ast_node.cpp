@@ -26,7 +26,7 @@ ast_node::ast_node(std::vector<token> tokens) {
             //
             // the keyword can thus be seen as a binary operator, with the condition as the first node
             // and the inner block as the second node
-            val = tokens[0];
+            val = token(tokens[0].val, tokens[0].line_number, tokens[0].type, tokens[0].ops);
             int start;
             for (start = 2; start < tokens.size() - 1; ++start)
                 if (tokens[start].val == "start")
@@ -36,18 +36,62 @@ ast_node::ast_node(std::vector<token> tokens) {
                 throw_error("empty block", tokens[start].line_number);
             children.emplace_back(ast_node::subarray(tokens, start + 2, (int) tokens.size() - 2));
         }
-        // terminal node, no need to return a child
-        else if (tokens.size() == 1)
-            val = tokens[0];
+        // leaf node, no need to return a child
+        else if (tokens.size() == 1) {
+            val = token(tokens[0].val, tokens[0].line_number, tokens[0].type, tokens[0].ops);
+        }
+        else if (tokens.size() >= 3 && tokens[0].type == symbol && tokens[1].val == "(" && tokens.back().val == ")") {
+            val = token(tokens[0].val, tokens[0].line_number, tokens[0].type, tokens[0].ops);
+            int i = 2, depth = 0;
+            std::vector<token> curr;
+            while (i < tokens.size() - 1) {
+                if (depth == 0 && tokens[i].val == ",") {
+                    if (!curr.empty())
+                        children.emplace_back(curr);
+                    curr.clear();
+                }
+                else {
+                    if (tokens[i].val == "(") ++depth;
+                    if (tokens[i].val == ")") --depth;
+                    curr.push_back(tokens[i]);
+                }
+                ++i;
+            }
+            if (!curr.empty())
+                children.emplace_back(curr);
+        }
         // handle case 2
         else {
-            int pre = token::highest_pre + 1, lowest_pre = -1;
-            for (int i = 0; i < tokens.size(); ++i)
+            if (tokens.front().val == "(" && tokens.back().val == ")") {
+                tokens.erase(tokens.begin());
+                tokens.pop_back();
+            }
+
+            int pre = token::highest_pre + 1, lowest_pre = -1, i = 0;
+            while (i < tokens.size()) {
+                if (tokens[i].val == "(") {
+                    int depth = 0;
+                    while (i < tokens.size() && !(depth == 1 && tokens[i].val == ")")) {
+                        if (tokens[i].val == "(") ++depth;
+                        if (tokens[i].val == ")") --depth;
+                        ++i;
+                    }
+                    if (i == tokens.size())
+                        throw_error("unclosed bracket: " + tokens[i - 1].val, tokens[i - 1].line_number);
+                }
+                if (tokens[i].type == num && tokens[i].val == ".") {
+                    tokens[i].type = builtin;
+                    tokens[i].ops = token::builtins[tokens[i].val].second;
+                }
                 if (tokens[i].type == builtin && token::builtins[tokens[i].val].second < pre)
                     pre = token::builtins[tokens[i].val].second, lowest_pre = i;
+
+                ++i;
+            }
             if (lowest_pre == -1)
                 throw_error("unrecognized symbol in expression", tokens[0].line_number);
-            val = tokens[lowest_pre];
+
+            val = token(tokens[lowest_pre].val, tokens[lowest_pre].line_number, tokens[lowest_pre].type, tokens[lowest_pre].ops);
             if (val.ops == 1) {
                 if (lowest_pre != 0)
                     throw_error("unary operator in incorrect position", tokens[0].line_number);
@@ -96,4 +140,10 @@ std::vector<std::pair<int, int>> ast_node::gen_blocks(const std::vector<token> &
 
 std::vector<token> ast_node::subarray(const std::vector<token> &tokens, int start, int end) {
     return std::vector<token>(tokens.begin() + start, tokens.begin() + end + 1);
+}
+
+void ast_node::print() {
+    std::cout << val.val << "\n";
+    for (ast_node u : children)
+        u.print();
 }

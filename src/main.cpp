@@ -16,7 +16,8 @@ int main(int argc, char *argv[]) {
     file_stream _file_stream = file_stream(std::string(argv[1]));
     lexer _lexer(_file_stream);
     std::vector<token> tokens = _lexer.tokenize();
-    parser _parser = parser(tokens);
+    ast_node ast = ast_node(tokens);
+    ast.print();
 
     return 0;
 }
