@@ -1,56 +1,38 @@
 #include "ast_node.h"
 
-// creates the tree node
-ast_node::ast_node(std::vector<token> tokens) {
-    std::vector<std::pair<int, int>> blocks = ast_node::gen_blocks(tokens);
+ast_node::ast_node(std::vector <token> tokens) {
+    std::vector <std::pair<int, int>> blocks = ast_node::gen_blocks(tokens);
     if (blocks.empty())
-        throw_error("parsing error");
-    // if there are multiple blocks, the current level does not perform an operation
-    // and can be treated as a group for execution with a postorder traversal
+        err("parsing error");
     else if (blocks.size() >= 2) {
-        val = token("GROUP", tokens[0].line_number, group, (int) blocks.size());
+        val = token("GROUP", tokens[0].line, t_group, (int) blocks.size());
         for (const std::pair<int, int> &block : blocks)
             children.emplace_back(ast_node::subarray(tokens, block.first, block.second));
-    }
-    // a single block must be either:
-    // case 1) a control block (if/elsif/else/for/while)
-    // case 2) an expression
-    else {
+    } else {
         tokens = subarray(tokens, blocks[0].first, blocks[0].second);
-        // identify case 1: control blocks end with "end"
         if (tokens.back().val == "end") {
-            // the grammatical structure for conditionals is
-            // {keyword} [cond] start
-            //     [block]
-            // end
-            //
-            // the keyword can thus be seen as a binary operator, with the condition as the first node
-            // and the inner block as the second node
-            val = token(tokens[0].val, tokens[0].line_number, tokens[0].type, tokens[0].ops);
+            val = token(tokens[0].val, tokens[0].line, tokens[0].type, tokens[0].ops);
             int start;
             for (start = 2; start < tokens.size() - 1; ++start)
                 if (tokens[start].val == "start")
                     break;
             children.emplace_back(ast_node::subarray(tokens, 1, start - 1));
             if (tokens.size() - start < 4)
-                throw_error("empty block", tokens[start].line_number);
+                err("empty block", tokens[start].line);
             children.emplace_back(ast_node::subarray(tokens, start + 2, (int) tokens.size() - 2));
-        }
-        // leaf node, no need to return a child
-        else if (tokens.size() == 1) {
-            val = token(tokens[0].val, tokens[0].line_number, tokens[0].type, tokens[0].ops);
-        }
-        else if (tokens.size() >= 3 && tokens[0].type == symbol && tokens[1].val == "(" && tokens.back().val == ")") {
-            val = token(tokens[0].val, tokens[0].line_number, tokens[0].type, tokens[0].ops);
+        } else if (tokens.size() == 1) {
+            val = token(tokens[0].val, tokens[0].line, tokens[0].type, tokens[0].ops);
+        } else if (tokens.size() >= 3 && tokens[0].type == t_symbol && tokens[1].val == "(" &&
+                   tokens.back().val == ")") {
+            val = token(tokens[0].val, tokens[0].line, tokens[0].type, tokens[0].ops);
             int i = 2, depth = 0;
-            std::vector<token> curr;
+            std::vector <token> curr;
             while (i < tokens.size() - 1) {
                 if (depth == 0 && tokens[i].val == ",") {
                     if (!curr.empty())
                         children.emplace_back(curr);
                     curr.clear();
-                }
-                else {
+                } else {
                     if (tokens[i].val == "(") ++depth;
                     if (tokens[i].val == ")") --depth;
                     curr.push_back(tokens[i]);
@@ -59,47 +41,74 @@ ast_node::ast_node(std::vector<token> tokens) {
             }
             if (!curr.empty())
                 children.emplace_back(curr);
-        }
-        // handle case 2
-        else {
-            if (tokens.front().val == "(" && tokens.back().val == ")") {
-                tokens.erase(tokens.begin());
-                tokens.pop_back();
+        } else {
+            bool extracted = true;
+            while (extracted && tokens.front().val == "(" && tokens.back().val == ")") {
+                extracted = false;
+                int count = 0;
+                bool valid = true;
+                for (int i = 1; i < tokens.size() - 1; ++i) {
+                    std::string s = tokens[i].val;
+                    if (s != "(" && s != ")")
+                        continue;
+                    else if (s == "(")
+                        ++count;
+                    else if (count == 0) {
+                        valid = false;
+                        break;
+                    } else
+                        --count;
+                }
+                if (valid) {
+                    tokens.erase(tokens.begin());
+                    tokens.pop_back();
+                    extracted = true;
+                }
             }
 
-            int pre = token::highest_pre + 1, lowest_pre = -1, i = 0;
+            int pre = token::pre_none + 1, lowest_pre = -1, i = 0, depth;
             while (i < tokens.size()) {
                 if (tokens[i].val == "(") {
-                    int depth = 0;
+                    depth = 0;
                     while (i < tokens.size() && !(depth == 1 && tokens[i].val == ")")) {
                         if (tokens[i].val == "(") ++depth;
                         if (tokens[i].val == ")") --depth;
                         ++i;
                     }
                     if (i == tokens.size())
-                        throw_error("unclosed bracket: " + tokens[i - 1].val, tokens[i - 1].line_number);
+                        err("unclosed bracket: " + tokens[i - 1].val, tokens[i - 1].line);
                 }
-                if (tokens[i].type == num && tokens[i].val == ".") {
-                    tokens[i].type = builtin;
+                if (tokens[i].val == ")" && depth <= 0)
+                    err("unopened bracket", tokens[i].line);
+                if (tokens[i].type == t_num && tokens[i].val == ".") {
+                    tokens[i].type = t_builtin;
                     tokens[i].ops = token::builtins[tokens[i].val].second;
                 }
-                if (tokens[i].type == builtin && token::builtins[tokens[i].val].second < pre)
+                if (tokens[i].type == t_builtin && token::builtins[tokens[i].val].second <= pre)
                     pre = token::builtins[tokens[i].val].second, lowest_pre = i;
 
                 ++i;
             }
-            if (lowest_pre == -1)
-                throw_error("unrecognized symbol in expression", tokens[0].line_number);
+            if (lowest_pre == -1) {
+                if (tokens.size() == 1)
+                    lowest_pre = 0;
+                else
+                    err("unrecognized symbol in expression", tokens[0].line);
+            }
 
-            val = token(tokens[lowest_pre].val, tokens[lowest_pre].line_number, tokens[lowest_pre].type, tokens[lowest_pre].ops);
+            val = token(tokens[lowest_pre].val, tokens[lowest_pre].line, tokens[lowest_pre].type,
+                        tokens[lowest_pre].ops);
             if (val.ops == 1) {
                 if (lowest_pre != 0)
-                    throw_error("unary operator in incorrect position", tokens[0].line_number);
+                    err("unary operator in incorrect position", tokens[0].line);
                 children.emplace_back(ast_node::subarray(tokens, 1, (int) tokens.size() - 1));
-            }
-            else if (val.ops == 2) {
+            } else if (val.ops == 2 || val.val == ".") {
+                if (val.val == ".") {
+                    val.type = t_builtin;
+                    val.ops = 2;
+                }
                 if (lowest_pre == 0 || lowest_pre == tokens.size() - 1)
-                    throw_error("binary operator in incorrect position", tokens[0].line_number);
+                    err("binary operator in incorrect position", tokens[0].line);
                 children.emplace_back(ast_node::subarray(tokens, 0, lowest_pre - 1));
                 children.emplace_back(ast_node::subarray(tokens, lowest_pre + 1, (int) tokens.size() - 1));
             }
@@ -107,29 +116,31 @@ ast_node::ast_node(std::vector<token> tokens) {
     }
 }
 
-std::vector<std::pair<int, int>> ast_node::gen_blocks(const std::vector<token> &tokens) {
-    std::vector<std::pair<int, int>> blocks;
+std::vector <std::pair<int, int>> ast_node::gen_blocks(const std::vector <token> &tokens, bool disallow_fn) {
+    std::vector <std::pair<int, int>> blocks;
     int count = (int) tokens.size(), curr = 0, start, depth;
     while (curr < count) {
-        if (curr - 1 >= 0 && tokens[curr - 1].type != linebreak)
-            throw_error("invalid formatting", tokens[curr - 1].line_number);
+        if (curr - 1 >= 0 && tokens[curr - 1].type != t_lb)
+            err("invalid formatting", tokens[curr - 1].line);
         start = curr;
         while (curr < count &&
-               !(tokens[curr].type == eof || tokens[curr].type == linebreak || tokens[curr].val == "start"))
+               !(tokens[curr].type == t_eof || tokens[curr].type == t_lb || tokens[curr].val == "start"))
             ++curr;
-        if (curr == count || tokens[curr].type == eof || tokens[curr].type == linebreak) {
+        if (curr == count || tokens[curr].type == t_eof || tokens[curr].type == t_lb) {
             blocks.emplace_back(start, curr - 1);
             ++curr;
             continue;
         }
         depth = 1, ++curr;
-        while (curr < count && tokens[curr].type != eof && !(depth == 1 && tokens[curr].val == "end")) {
+        while (curr < count && tokens[curr].type != t_eof && !(depth == 1 && tokens[curr].val == "end")) {
             if (tokens[curr].val == "start") ++depth;
             if (tokens[curr].val == "end") --depth;
             ++curr;
         }
-        if (curr == count || tokens[curr].type == eof)
-            throw_error("unclosed block", tokens[curr - 1].line_number);
+        if (curr == count || tokens[curr].type == t_eof)
+            err("unclosed block", tokens[curr - 1].line);
+        if (disallow_fn && tokens[start].val == "fn")
+            err("cannot have nested functions", tokens[start].line);
         blocks.emplace_back(start, curr);
         curr += 2;
     }
@@ -138,7 +149,7 @@ std::vector<std::pair<int, int>> ast_node::gen_blocks(const std::vector<token> &
     return blocks;
 }
 
-std::vector<token> ast_node::subarray(const std::vector<token> &tokens, int start, int end) {
+std::vector <token> ast_node::subarray(const std::vector <token> &tokens, int start, int end) {
     return std::vector<token>(tokens.begin() + start, tokens.begin() + end + 1);
 }
 

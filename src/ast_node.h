@@ -1,21 +1,27 @@
-#ifndef QI_AST_NODE_H
-#define QI_AST_NODE_H
+#ifndef QI_INTERPRETER_AST_NODE_H
+#define QI_INTERPRETER_AST_NODE_H
 
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include "error.h"
 #include "token.h"
+#include "util.h"
 
-struct ast_node {
+
+class ast_node {
+public:
     token val;
-    std::vector<ast_node> children;
+    std::vector <ast_node> children;
 
-    explicit ast_node(std::vector<token> tokens = std::vector<token>());
-    static std::vector<std::pair<int, int>> gen_blocks(const std::vector<token>& tokens);
-    static std::vector<token> subarray(const std::vector<token>& tokens, int start, int end);
+    explicit ast_node(std::vector <token> tokens = std::vector<token>());
+
+    static std::vector <std::pair<int, int>> gen_blocks(const std::vector <token> &tokens, bool disallow_fn = true);
+
+    static std::vector <token> subarray(const std::vector <token> &tokens, int start, int end);
+
     void print();
 };
 
-#endif //QI_AST_NODE_H
+
+#endif //QI_INTERPRETER_AST_NODE_H
