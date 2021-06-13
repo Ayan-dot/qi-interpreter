@@ -42,6 +42,7 @@ void token::init() {
     token::builtins.insert({"not", {1, 4}});
     token::builtins.insert({"or", {2, 12}});
     token::builtins.insert({"if", {2, 2 * token::pre_none}});
+    token::builtins.insert({"elsif", {2, 2 * token::pre_none}});
     token::builtins.insert({"else", {1, 2 * token::pre_none}});
     token::builtins.insert({"start", {0, 2 * token::pre_none}});
     token::builtins.insert({"end", {0, 2 * token::pre_none}});
@@ -67,6 +68,7 @@ void token::init() {
     token::builtins.insert({".", {2, 8}});
 
     token::control.insert("if");
+    token::control.insert("elsif");
     token::control.insert("else");
     token::control.insert("for");
     token::control.insert("while");

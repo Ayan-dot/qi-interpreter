@@ -24,16 +24,23 @@ object *executor::run(ast_node *u) {
             interpreter::declare_obj({u->val, u->children[0].val});
         else if (u->val.type == t_group) {
             for (int i = 0; i < u->children.size(); ++i) {
-                if (u->children[i].val.val == "else") {
-                    if (i == 0 || u->children[i - 1].val.val != "if")
-                        err("else must follow if", u->children[i].val.line);
+                if (u->children[i].val.val == "elsif") {
+                    if (i == 0 || (u->children[i - 1].val.val != "if" && u->children[i - 1].val.val != "elsif"))
+                        err("elsif must follow if or elsif", u->children[i].val.line);
+                    if (std::get<bool>(sub.back()->store)) {
+                        sub.push_back(sub.back());
+                        continue;
+                    }
+                } else if (u->children[i].val.val == "else") {
+                    if (i == 0 || (u->children[i - 1].val.val != "if" && u->children[i - 1].val.val != "elsif"))
+                        err("else must follow if or elsif", u->children[i].val.line);
                     if (std::get<bool>(sub.back()->store))
                         continue;
                 }
                 sub.push_back(run(&(u->children[i])));
             }
         } else if (token::control.find(u->val.val) != token::control.end()) {
-            if (u->val.val == "if") {
+            if (u->val.val == "if" || u->val.val == "elsif") {
                 object *ret = new object(o_bool);
                 if (std::get<bool>(run(&u->children[0])->to_bool()->store)) {
                     run(&u->children[1]);

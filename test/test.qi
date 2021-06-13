@@ -1,6 +1,21 @@
 fn main none () start
+    num x
     arr a
-    a.push(5)
-    in a.at(0)
+    out "input fizzbuzz limit"
+    in x
+    for i of range(1, x + 1) start
+        if i % 15 == 0 start
+            a.push("FizzBuzz")
+        end
+        elsif i % 3 == 0 start
+            a.push("Fizz")
+        end
+        elsif i % 5 == 0 start
+            a.push("Buzz")
+        end
+        else start
+            a.push(i)
+        end
+    end
     out a
 end
