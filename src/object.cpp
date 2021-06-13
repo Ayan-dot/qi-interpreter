@@ -348,7 +348,7 @@ object *object::greater_than(object *o) {
     if (type == o->type) {
         switch (type) {
             case o_num: {
-                ret->set(std::get<double>(store) > std::get<double>(o->store));
+                ret->set((std::get<double>(store)) > (std::get<double>(o->store)));
                 break;
             }
             case o_bool: {
@@ -428,26 +428,25 @@ object *object::equals(object *o) {
                 break;
             }
         }
-    } else if (type == o_bool || o->type == o_bool)
-        ret->set(std::get<bool>(to_bool()->store) == std::get<bool>(o->to_bool()->store));
+    }
     return ret;
 }
 
 object *object::not_equals(object *o) {
     object *ret = new object(o_bool);
-    ret->set(!(equals(o)));
+    ret->set(!(std::get<bool>(equals(o)->store)));
     return ret;
 }
 
 object *object::greater_than_equal_to(object *o) {
     object *ret = new object(o_bool);
-    ret->set(greater_than(o) || equals(o));
+    ret->set(std::get<bool>(greater_than(o)->store) || std::get<bool>(equals(o)->store));
     return ret;
 }
 
 object *object::less_than_equal_to(object *o) {
     object *ret = new object(o_bool);
-    ret->set(less_than(o) || equals(o));
+    ret->set(std::get<bool>(less_than(o)->store) || std::get<bool>(equals(o)->store));
     return ret;
 }
 
