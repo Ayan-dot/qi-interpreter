@@ -37,4 +37,4 @@ The code in the file located at `path/to/file.qi` will be interpreted by the pro
 
 ##### Contact
 
-If you find any bugs or have any questions, let us know.
+If you find any bugs or have any questions, let us know. WEcN4#%d%t$8Yj
