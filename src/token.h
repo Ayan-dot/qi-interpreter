@@ -1,5 +1,5 @@
-#ifndef QI_TOKEN_H
-#define QI_TOKEN_H
+#ifndef QI_INTERPRETER_TOKEN_H
+#define QI_INTERPRETER_TOKEN_H
 
 #include <string>
 #include <sstream>
@@ -8,30 +8,37 @@
 #include <utility>
 #include <vector>
 
-enum token_type {
-    null,
-    str,
-    num,
-    linebreak,
-    eof,
-    symbol,
-    builtin,
-    group
+
+enum t_type {
+    t_none,
+    t_group,
+    t_builtin,
+    t_symbol,
+    t_num,
+    t_str,
+    t_lb,
+    t_eof
 };
 
-struct token {
+
+class token {
+public:
+    static std::unordered_map <std::string, std::pair<int, int>> builtins;
+    static std::unordered_set <std::string> control, vars;
+    static int pre_none;
+
     std::string val;
-    token_type type;
-    int ops, line_number;
-    static std::unordered_map<std::string, std::pair<int, int>> builtins;
-    //static std::unordered_map<std::string, int> precedence;
-    static int highest_pre;
-    static std::unordered_set<std::string> control;
-    static std::unordered_set<std::string> vars;
+    t_type type;
+    int ops, line;
 
-    explicit token(std::string _val = "", int _line_number = -1, token_type _type = null, int _ops = 0);
     static void init();
+
+    explicit token(std::string _val = "", int _line = -1, t_type _type = t_none, int _ops = 0);
+
     std::string str() const;
+
+    token &operator=(const token &other);
 };
 
-#endif //QI_TOKEN_H
+
+#endif //QI_INTERPRETER_TOKEN_H

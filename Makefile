@@ -1,26 +1,34 @@
 # Usage:
-# make 				compile all binary
-# make clean		remove all binaries and objects
+#  - make			compile to build dir
+#  - make clean		clear build dir (delete executables)
+#  - make test		test with target as arg
 
-.PHONY = all compile clean
+.PHONY = all compile clean test
 
-SRC := src
-OUT := build
+# Directory addresses
+SOURCE := src
+BUILD := build
+TARGET := test/test.qi
 
+# Command directives
 CXX := g++
-FLAGS := -std=c++11
-NAME := qi
-ARGS := tests/test.qi
+FLAGS := -std=c++17
+OUTPUT := qi
+COMMAND = -o
 
+# Set default goal
 .DEFAULT_GOAL := compile
 
 compile:
-	${CXX} ${FLAGS} ${SRC}/*.cpp ${SRC}/interpreter/*.cpp -o ${OUT}/${NAME}
-	@echo [info] compiled to ./${OUT}/${NAME}
-
-run:
-	./${OUT}/${NAME} ${ARGS}
+	@echo [info] compiling...
+	@${CXX} ${FLAGS} ${SOURCE}/*.cpp ${COMMAND} ${BUILD}/${OUTPUT}
+	@echo [info] compiled to ${BUILD}/${OUTPUT}
 
 clean:
-	@echo [info] cleaning build directory
-	@rm ${OUT}/*
+	@echo [info] cleaning build dir...
+	@rm ${BUILD}/*
+	@echo [info] build dir cleaned
+
+test:
+	@echo [info] testing program with target ${TARGET}
+	@${TARGET}

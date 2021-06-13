@@ -31,5 +31,8 @@
 *.out
 *.app
 
-.vscode
+# IDEs
+.vscode/
 **/.vscode/
+.idea/
+**/.idea/
