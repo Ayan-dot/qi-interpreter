@@ -1,11 +1,6 @@
 fn main none () start
     arr a
-    num x
-    x = 4
-    for i of range(1, x) start
-        for j of range(1, x) start
-            a.push(i * j)
-        end
-    end
+    a.push(5)
+    in a.at(0)
     out a
 end
