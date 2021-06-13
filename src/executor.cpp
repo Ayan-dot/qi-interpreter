@@ -46,7 +46,67 @@ object *executor::run(ast_node *u) {
             } else if (u->val.val == "while") {
                 while (std::get<bool>(run(&u->children[0])->to_bool()->store))
                     run(&u->children[1]);
-            }
+            } else if (u->val.val == "for") {
+                if (u->children.size() != 2)
+                    err("invalid for loop structure", u->val.line);
+                else if (u->children[0].val.val != "of")
+                    err("must have of in for loop expression", u->children[0].val.line);
+                else if (u->children[0].children.size() != 2)
+                    err("of must have 2 children", u->children[0].val.line);
+                ast_node *of = &(u->children[0]);
+                if (of->children[0].val.type != t_symbol)
+                    err("left hand operand must be a symbol", of->children[0].val.line);
+                else if (memory::has(of->children[0].val.val))
+                    err("for loop variable already defined", of->children[0].val.line);
+                object *it = new object(o_num),
+                        *start = new object(o_num),
+                        *end = new object(o_num),
+                        *every = new object(o_num);
+                memory::add(of->children[0].val.val, it);
+
+                start->set((double) 0);
+                end->set((double) 0);
+                every->set((double) 1);
+
+                if (of->children[1].val.val != "range")
+                    err("right hand operand must be range(...)", of->val.line);
+
+                ast_node range = of->children[1];
+                for (ast_node &v : range.children) {
+                    sub.push_back(run(&v));
+                    if (!sub.back()->is_int())
+                        err("range arg must be integers", v.val.line);
+                }
+                if (range.children.size() < 1 || range.children.size() > 3)
+                    err("range must have 1-3 arguments", range.val.line);
+                switch (range.children.size()) {
+                    case 1: {
+                        end->set(std::get<double>(sub[0]->store));
+                        break;
+                    }
+                    case 2: {
+                        start->set(std::get<double>(sub[0]->store));
+                        end->set(std::get<double>(sub[1]->store));
+                        break;
+                    }
+                    case 3: {
+                        start->set(std::get<double>(sub[0]->store));
+                        end->set(std::get<double>(sub[1]->store));
+                        every->set(std::get<double>(sub[2]->store));
+                        break;
+                    }
+                    default: {
+                        err("range must have 1-3 arguments", range.val.line);
+                        break;
+                    }
+                }
+
+                for (it->equal(start); std::get<bool>((it->less_than(end))->store); it->add_equal(every))
+                    run(&(u->children[1]));
+
+                memory::remove(of->children[0].val.val);
+            } else
+                err("unsupported control structure", u->val.line);
         } else if (u->val.type == t_builtin) {
             if (u->val.ops != u->children.size()) {
                 std::cout << u->children.size() << std::endl;

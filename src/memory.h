@@ -21,6 +21,8 @@ public:
 
     static void add(std::string id, object *obj, bool to_global = false);
 
+    static void remove(std::string id);
+
     static object *get(std::string id);
 
     static void push();
