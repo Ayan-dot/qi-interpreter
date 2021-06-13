@@ -98,4 +98,3 @@ std::vector <token> lexer::tokenize() {
     }
     return tokens;
 }
-
