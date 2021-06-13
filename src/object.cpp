@@ -102,9 +102,12 @@ std::string object::str() {
         case o_arr: {
             std::stringstream ss;
             ss << "{";
-            for (int i = 0; i < std::get < std::vector < object * >> (store).size() - 1; ++i)
-                ss << std::get < std::vector < object * >> (store)[i]->str() << ", ";
-            ss << std::get < std::vector < object * >> (store).back()->str() << "}";
+            if (!(std::get < std::vector < object * >> (store).empty())) {
+                for (int i = 0; i < std::get < std::vector < object * >> (store).size() - 1; ++i)
+                    ss << std::get < std::vector < object * >> (store)[i]->str() << ", ";
+                ss << std::get < std::vector < object * >> (store).back()->str();
+            }
+            ss << "}";
             return ss.str();
         }
         default: {
