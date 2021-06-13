@@ -1,5 +1,20 @@
 #include "ast_node.h"
 
+bool ast_node::is_fn(std::vector <token> &tokens) {
+    bool valid = tokens.size() >= 3 && tokens[0].type == t_symbol && tokens[1].val == "(" &&
+                 tokens.back().val == ")";
+    if (valid) {
+        int i = 2, depth = 0;
+        while (i < tokens.size() && !(depth == 0 && tokens[i].val == ")")) {
+            if (tokens[i].val == "(") ++depth;
+            if (tokens[i].val == ")") --depth;
+            ++i;
+        }
+        valid = (i == (tokens.size() - 1));
+    }
+    return valid;
+}
+
 ast_node::ast_node(std::vector <token> tokens) {
     std::vector <std::pair<int, int>> blocks = ast_node::gen_blocks(tokens);
     if (blocks.empty())
@@ -11,19 +26,27 @@ ast_node::ast_node(std::vector <token> tokens) {
     } else {
         tokens = subarray(tokens, blocks[0].first, blocks[0].second);
         if (tokens.back().val == "end") {
-            val = token(tokens[0].val, tokens[0].line, tokens[0].type, tokens[0].ops);
-            int start;
-            for (start = 2; start < tokens.size() - 1; ++start)
-                if (tokens[start].val == "start")
-                    break;
-            children.emplace_back(ast_node::subarray(tokens, 1, start - 1));
-            if (tokens.size() - start < 4)
-                err("empty block", tokens[start].line);
-            children.emplace_back(ast_node::subarray(tokens, start + 2, (int) tokens.size() - 2));
+            if (tokens.front().val == "else") {
+                val = token(tokens[0].val, tokens[0].line, tokens[0].type, tokens[0].ops);
+                int start = 1;
+                for (; start < tokens.size(); ++start)
+                    if (tokens[start].val == "start")
+                        break;
+                children.emplace_back(ast_node::subarray(tokens, start + 2, (int) tokens.size() - 2));
+            } else {
+                val = token(tokens[0].val, tokens[0].line, tokens[0].type, tokens[0].ops);
+                int start = 2;
+                for (; start < tokens.size() - 1; ++start)
+                    if (tokens[start].val == "start")
+                        break;
+                children.emplace_back(ast_node::subarray(tokens, 1, start - 1));
+                if (tokens.size() - start < 4)
+                    err("empty block", tokens[start].line);
+                children.emplace_back(ast_node::subarray(tokens, start + 2, (int) tokens.size() - 2));
+            }
         } else if (tokens.size() == 1) {
             val = token(tokens[0].val, tokens[0].line, tokens[0].type, tokens[0].ops);
-        } else if (tokens.size() >= 3 && tokens[0].type == t_symbol && tokens[1].val == "(" &&
-                   tokens.back().val == ")") {
+        } else if (is_fn(tokens)) {
             val = token(tokens[0].val, tokens[0].line, tokens[0].type, tokens[0].ops);
             int i = 2, depth = 0;
             std::vector <token> curr;
@@ -137,8 +160,11 @@ std::vector <std::pair<int, int>> ast_node::gen_blocks(const std::vector <token>
             if (tokens[curr].val == "end") --depth;
             ++curr;
         }
-        if (curr == count || tokens[curr].type == t_eof)
+        if (curr == count || tokens[curr].type == t_eof) {
+            for (token t : tokens)
+                std::cout << t.str() << std::endl;
             err("unclosed block", tokens[curr - 1].line);
+        }
         if (disallow_fn && tokens[start].val == "fn")
             err("cannot have nested functions", tokens[start].line);
         blocks.emplace_back(start, curr);
