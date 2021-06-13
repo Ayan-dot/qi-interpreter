@@ -50,7 +50,7 @@ void token::init() {
     token::builtins.insert({"while", {2, 2 * token::pre_none}});
     token::builtins.insert({"for", {2, 2 * token::pre_none}});
     token::builtins.insert({"of", {2, -1}});
-    token::builtins.insert({"in", {2, 2 * token::pre_none}});
+    token::builtins.insert({"in", {1, 0}});
     token::builtins.insert({"out", {1, 0}});
     token::builtins.insert({"return", {1, 0}});
     token::builtins.insert({"fn", {4, 2 * token::pre_none}});

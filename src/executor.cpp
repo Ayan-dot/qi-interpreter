@@ -74,6 +74,29 @@ object *executor::run(ast_node *u) {
                     return target->at(arg);
                 } else
                     err("unknown method \"" + method + "\"", u->val.line);
+            } else if (u->val.val == "in") {
+                object *var = run(&(u->children[0]));
+                std::string in;
+                std::getline(std::cin, in);
+                switch (var->type) {
+                    case o_num: {
+                        std::size_t offset = 0;
+                        double self = std::stod(in, &offset);
+                        if (offset != in.size())
+                            err("invalid number in input", u->val.line);
+                        var->set(self);
+                        break;
+                    }
+                    case o_str: {
+                        var->set(in);
+                        break;
+                    }
+                    default: {
+                        err("unsupported input type", u->val.line);
+                        break;
+                    }
+                }
+                return new object();
             }
 
             for (ast_node &v : u->children)

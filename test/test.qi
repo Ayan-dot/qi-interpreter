@@ -1,10 +1,6 @@
-fn fib num (num n) start
-    else start
-        return 1
-    end
-    return fib(n-1) + fib(n-2)
-end
-
 fn main none () start
-    out fib(10)
+    arr a
+    a.push(5)
+    in a.at(0)
+    out a
 end
