@@ -23,12 +23,27 @@ object *executor::run(ast_node *u) {
         if (token::vars.find(u->val.val) != token::vars.end())
             interpreter::declare_obj({u->val, u->children[0].val});
         else if (u->val.type == t_group) {
-            for (ast_node &v : u->children)
-                sub.push_back(run(&v));
+            for (int i = 0; i < u->children.size(); ++i) {
+                if (u->children[i].val.val == "else") {
+                    if (i == 0 || u->children[i - 1].val.val != "if")
+                        err("else must follow if", u->children[i].val.line);
+                    if (std::get<bool>(sub.back()->store))
+                        continue;
+                }
+                sub.push_back(run(&(u->children[i])));
+            }
         } else if (token::control.find(u->val.val) != token::control.end()) {
-            if (u->val.val == "if" && std::get<bool>(run(&u->children[0])->to_bool()->store))
-                run(&u->children[1]);
-            if (u->val.val == "while") {
+            if (u->val.val == "if") {
+                object *ret = new object(o_bool);
+                if (std::get<bool>(run(&u->children[0])->to_bool()->store)) {
+                    run(&u->children[1]);
+                    ret->set(true);
+                } else
+                    ret->set(false);
+                return ret;
+            } else if (u->val.val == "else") {
+                run(&u->children[0]);
+            } else if (u->val.val == "while") {
                 while (std::get<bool>(run(&u->children[0])->to_bool()->store))
                     run(&u->children[1]);
             }
@@ -176,5 +191,8 @@ object *executor::run(ast_node *u) {
         }
     }
 
-    return new object();
+    return new
+
+            object();
+
 }
