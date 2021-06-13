@@ -7,6 +7,8 @@ executor::executor(ast_node *_tree, object *_parent) {
 
 object *executor::init() {
     has_return = false;
+    has_continue = false;
+    has_break = false;
     object *res = run(tree);
     if (has_return && parent->f_return == o_none)
         err("none function returned non-none object");
@@ -14,30 +16,36 @@ object *executor::init() {
         err("non-none function returned none");
     if (has_return && return_val->type != parent->f_return)
         err("function return type does not match returned object type");
+    if (has_continue)
+        err("continue called outside loop");
+    if (has_break)
+        err("break called outside loop");
     return has_return ? return_val : res;
 }
 
 object *executor::run(ast_node *u) {
-    if (!has_return) {
+    if (!(has_return || has_continue || has_break)) {
         std::vector < object * > sub;
         if (token::vars.find(u->val.val) != token::vars.end())
             interpreter::declare_obj({u->val, u->children[0].val});
         else if (u->val.type == t_group) {
             for (int i = 0; i < u->children.size(); ++i) {
-                if (u->children[i].val.val == "elsif") {
-                    if (i == 0 || (u->children[i - 1].val.val != "if" && u->children[i - 1].val.val != "elsif"))
-                        err("elsif must follow if or elsif", u->children[i].val.line);
-                    if (std::get<bool>(sub.back()->store)) {
-                        sub.push_back(sub.back());
-                        continue;
+                if (!(has_return || has_continue || has_break)) {
+                    if (u->children[i].val.val == "elsif") {
+                        if (i == 0 || (u->children[i - 1].val.val != "if" && u->children[i - 1].val.val != "elsif"))
+                            err("elsif must follow if or elsif", u->children[i].val.line);
+                        if (std::get<bool>(sub.back()->store)) {
+                            sub.push_back(sub.back());
+                            continue;
+                        }
+                    } else if (u->children[i].val.val == "else") {
+                        if (i == 0 || (u->children[i - 1].val.val != "if" && u->children[i - 1].val.val != "elsif"))
+                            err("else must follow if or elsif", u->children[i].val.line);
+                        if (std::get<bool>(sub.back()->store))
+                            continue;
                     }
-                } else if (u->children[i].val.val == "else") {
-                    if (i == 0 || (u->children[i - 1].val.val != "if" && u->children[i - 1].val.val != "elsif"))
-                        err("else must follow if or elsif", u->children[i].val.line);
-                    if (std::get<bool>(sub.back()->store))
-                        continue;
+                    sub.push_back(run(&(u->children[i])));
                 }
-                sub.push_back(run(&(u->children[i])));
             }
         } else if (token::control.find(u->val.val) != token::control.end()) {
             if (u->val.val == "if" || u->val.val == "elsif") {
@@ -51,8 +59,15 @@ object *executor::run(ast_node *u) {
             } else if (u->val.val == "else") {
                 run(&u->children[0]);
             } else if (u->val.val == "while") {
-                while (std::get<bool>(run(&u->children[0])->to_bool()->store))
+                while (std::get<bool>(run(&u->children[0])->to_bool()->store)) {
                     run(&u->children[1]);
+                    if (has_continue)
+                        has_continue = false;
+                    if (has_break) {
+                        has_break = false;
+                        break;
+                    }
+                }
             } else if (u->val.val == "for") {
                 if (u->children.size() != 2)
                     err("invalid for loop structure", u->val.line);
@@ -108,8 +123,15 @@ object *executor::run(ast_node *u) {
                     }
                 }
 
-                for (it->equal(start); std::get<bool>((it->less_than(end))->store); it->add_equal(every))
+                for (it->equal(start); std::get<bool>((it->less_than(end))->store); it->add_equal(every)) {
                     run(&(u->children[1]));
+                    if (has_continue)
+                        has_continue = false;
+                    if (has_break) {
+                        has_break = false;
+                        break;
+                    }
+                }
 
                 memory::remove(of->children[0].val.val);
             } else
@@ -163,6 +185,12 @@ object *executor::run(ast_node *u) {
                         break;
                     }
                 }
+                return new object();
+            } else if (u->val.val == "continue") {
+                has_continue = true;
+                return new object();
+            } else if (u->val.val == "break") {
+                has_break = true;
                 return new object();
             }
 
