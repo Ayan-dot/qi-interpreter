@@ -5,6 +5,7 @@
 #include <cmath>
 #include <queue>
 #include <stack>
+#include <algorithm>
 #include <sstream>
 #include <string>
 #include <variant>

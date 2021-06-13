@@ -11,7 +11,7 @@ BUILD := build
 TARGET := test/test.qi
 
 # Command directives
-CXX := g++
+CXX := clang++
 FLAGS := -std=c++17
 OUTPUT := qi
 COMMAND = -o

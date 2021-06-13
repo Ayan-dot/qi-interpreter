@@ -59,7 +59,7 @@ void lexer::scan_comment() {
 
 std::vector <token> lexer::tokenize() {
     std::vector <token> tokens;
-    while (stream.next() != '\0') {
+    while (stream.next()) {
         stream.move();
         char curr = stream.curr();
         if (curr == EOF)
@@ -92,8 +92,9 @@ std::vector <token> lexer::tokenize() {
                 tokens.emplace_back(val, line, t_builtin, token::builtins[val].first);
             else
                 err("unrecognized operator", line);
-        } else
-            err("unrecognized symbol", line);
+        } else {
+			//std::cout << "char: " << curr << std::endl;
+		}
     }
     return tokens;
 }

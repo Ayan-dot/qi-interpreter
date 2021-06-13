@@ -1,6 +1,6 @@
-fn factorial num (num n) start
-    if n == 0 start
-        return 1
+fn fib num (num n) start
+    if n < 2 start
+        return n
     end
     return n * factorial(n - 1)
 end

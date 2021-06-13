@@ -36,17 +36,16 @@ fstream::fstream(std::string file_name) {
 }
 
 char fstream::curr() const {
-    return file ? file->val : '\0';
+    return file ? file->val : 0;
 }
 
 char fstream::next() const {
-    return file->next ? file->next->val : '\0';
+    return file->next ? file->next->val : 0;
 }
 
 void fstream::move() {
     if (file->next) {
         fstream_node *prev = file;
-        delete prev;
         file = file->next;
     } else
         err("interpreter error; no characters in stream");

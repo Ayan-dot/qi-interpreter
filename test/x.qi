@@ -1,0 +1,3 @@
+fn main none () start
+	out "Hello World!"
+end 
