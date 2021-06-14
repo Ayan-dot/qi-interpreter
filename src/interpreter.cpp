@@ -117,6 +117,10 @@ void interpreter::execute() {
         err("main must return type none");
     memory::push();
     executor *process = new executor(root->f_body, root);
+    auto start = std::chrono::high_resolution_clock::now();
     process->init();
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    out("execution complete in " + std::to_string(duration.count()) + " microseconds");
     memory::pop();
 }
