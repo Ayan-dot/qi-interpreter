@@ -121,9 +121,14 @@ ast_node::ast_node(std::vector <token> tokens) {
 
             val = token(tokens[lowest_pre].val, tokens[lowest_pre].line, tokens[lowest_pre].type,
                         tokens[lowest_pre].ops);
-            if (val.ops == 1) {
+            if (val.ops == 1 || (val.val == "-" && (lowest_pre == 0 || lowest_pre == tokens.size() - 1))) {
                 if (lowest_pre != 0)
                     err("unary operator in incorrect position", tokens[0].line);
+                if (val.val == "-") {
+                    std::vector <token> tmp;
+                    tmp.emplace_back("0", val.line, t_num, 0);
+                    children.emplace_back(tmp);
+                }
                 children.emplace_back(ast_node::subarray(tokens, 1, (int) tokens.size() - 1));
             } else if (val.ops == 2 || val.val == ".") {
                 if (val.val == ".") {
