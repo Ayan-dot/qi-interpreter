@@ -85,6 +85,8 @@ public:
 
     object *divide(object *o);
 
+    object *truncate_divide(object *o);
+
     object *modulo(object *o);
 
     object *b_xor(object *o);
@@ -118,6 +120,8 @@ public:
     object *power_equal(object *o);
 
     object *divide_equal(object *o);
+
+    object *truncate_divide_equal(object *o);
 
     object *modulo_equal(object *o);
 

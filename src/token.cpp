@@ -13,6 +13,7 @@ void token::init() {
     token::builtins.insert({"*", {2, 6}});
     token::builtins.insert({"**", {2, 7}});
     token::builtins.insert({"/", {2, 6}});
+    token::builtins.insert({"//", {2, 6}});
     token::builtins.insert({"==", {2, 3}});
     token::builtins.insert({"!=", {2, 3}});
     token::builtins.insert({"<", {2, 3}});
@@ -31,6 +32,7 @@ void token::init() {
     token::builtins.insert({"*=", {2, 1}});
     token::builtins.insert({"**=", {2, 1}});
     token::builtins.insert({"/=", {2, 1}});
+    token::builtins.insert({"//=", {2, 1}});
     token::builtins.insert({"%=", {2, 1}});
     token::builtins.insert({">>=", {2, 1}});
     token::builtins.insert({"<<=", {2, 1}});
