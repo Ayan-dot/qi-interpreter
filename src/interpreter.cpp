@@ -53,14 +53,12 @@ void interpreter::declare_obj(std::vector <token> obj, bool to_global) {
 }
 
 bool interpreter::declare_fn(int start, int end) {
-    std::cout << "what";
     int beg = start + 1;
     if (end - start < 7)
         err("function declaration is too short", tokens[end].line);
     if (tokens[start].val == "fn" &&
         (tokens[++start].val == "main" || memory::valid(tokens[start].val)) &&
         token::vars.find(tokens[++start].val) != token::vars.end()) {
-        std::cout << "what";
         object *fn_obj = new object(o_fn);
         fn_obj->f_return = object::str_o_type(tokens[start].val);
         ++start;

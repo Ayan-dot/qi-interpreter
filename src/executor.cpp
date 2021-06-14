@@ -52,6 +52,8 @@ object *executor::run(ast_node *u) {
                     return target->len();
                 else if (method == "reverse")
                     return target->reverse();
+                else if (method == "sort")
+                    return target->sort();
                 else if (method == "at") {
                     if (u->children[1].children.size() == 0)
                         err("at requires 1 argument", u->children[1].val.line);
@@ -97,6 +99,8 @@ object *executor::run(ast_node *u) {
                     return target->last();
                 else if(method == "empty")
                     return target->empty();
+                else if(method == "clear")
+                    return target->clear();
                 else
                     err("unknown method \"" + method + "\"", u->val.line);
             }

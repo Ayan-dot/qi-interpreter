@@ -91,13 +91,17 @@ public:
 
     object *reverse();
 
+    object *sort();
+
     object *at(object *index);
 
     object *next();
 
     object *last();
 
-     object *sub();
+    object *sub();
+
+    object *clear();
 
     object *sub(object * start);
 

@@ -323,6 +323,39 @@ object *object::reverse() {
     return new object();
 }
 
+bool compare_obj(object * o1, object * o2) {
+    if(o1->type != o2->type)
+        err("cannot sort array with different types");
+    switch(o1->type) {
+        case o_str: {
+            return std::get<std::string>(o1->store) < std::get<std::string>(o2->store);
+        }
+        case o_num: {
+            return std::get<double>(o1->store) < std::get<double>(o2->store);
+        }
+        default: 
+            err("sort() not supported for non integral and char literal types");
+    }
+    return false;
+}
+
+object * object::sort() {
+    switch(type) {
+        case o_str: {
+            std::sort(std::get<std::string>(store).begin(), std::get<std::string>(store).end());
+            break;
+        }
+        case o_arr: {
+            std::sort(std::get<std::vector<object*>>(store).begin(), std::get<std::vector<object*>>(store).end(), compare_obj);
+            break;
+        }
+        default:
+            err("sort() not supported for this type");
+            break;
+    }
+    return new object();
+}
+
 object *object::at(object *index) {
     switch (type) {
         case o_str: {
@@ -481,6 +514,32 @@ object * object::sub(object * start, object * end, object * step) {
             err("sub() not supported for this type");
             break;
         }
+    }
+    return new object();
+}
+
+object * object::clear() {
+    switch(type) {
+        case o_str: 
+            std::get<std::string>(store).clear();
+            break;
+        case o_arr:
+            std::get<std::vector<object *>>(store).clear();
+            break;
+        case o_queue:
+            while(!std::get<std::queue<object *>>(store).empty())
+                std::get<std::queue<object *>>(store).pop();
+            break;
+        case o_stack:
+            while(!std::get<std::stack<object *>>(store).empty())
+                std::get<std::stack<object *>>(store).pop();
+            break;
+        case o_set:
+            std::get<std::unordered_set<object*, obj_hash, obj_equals>>(store).clear();
+            break;
+        default:
+            err("clear() not supported for this type");
+            break;
     }
     return new object();
 }
