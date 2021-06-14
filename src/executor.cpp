@@ -210,6 +210,8 @@ object *executor::run(ast_node *u) {
                 return sub[0]->power(sub[1]);
             else if (u->val.val == "/")
                 return sub[0]->divide(sub[1]);
+            else if (u->val.val == "//")
+                return sub[0]->truncate_divide(sub[1]);
             else if (u->val.val == "%")
                 return sub[0]->modulo(sub[1]);
             else if (u->val.val == "^")
@@ -244,6 +246,8 @@ object *executor::run(ast_node *u) {
                 return sub[0]->power_equal(sub[1]);
             else if (u->val.val == "/=")
                 return sub[0]->divide_equal(sub[1]);
+            else if (u->val.val == "//=")
+                return sub[0]->truncate_divide_equal(sub[1]);
             else if (u->val.val == "%=")
                 return sub[0]->modulo_equal(sub[1]);
             else if (u->val.val == "^=")

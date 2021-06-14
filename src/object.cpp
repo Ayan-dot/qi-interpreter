@@ -282,6 +282,16 @@ object *object::divide(object *o) {
     return new object();
 }
 
+object *object::truncate_divide(object *o) {
+    if (type == o_num && type == o->type) {
+        object *ret = new object(o_num);
+        ret->set((double) floor(std::get<double>(store) / std::get<double>(o->store)));
+        return ret;
+    }
+    err("// not supported here");
+    return new object();
+}
+
 object *object::modulo(object *o) {
     if (type == o_num && o->type == o_num) {
         object *ret = new object(o_num);
@@ -472,6 +482,11 @@ object *object::power_equal(object *o) {
 
 object *object::divide_equal(object *o) {
     equal(divide(o));
+    return new object();
+}
+
+object *object::truncate_divide_equal(object *o) {
+    equal(truncate_divide(o));
     return new object();
 }
 
