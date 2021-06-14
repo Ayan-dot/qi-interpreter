@@ -5,10 +5,9 @@ interpreter::interpreter(std::vector <token> &_tokens) {
     std::vector <std::pair<int, int >> blocks = ast_node::gen_blocks(tokens, false);
     bool fn_declared = false;
     bool main_declared = false;
-
     for (int i = 0; i < blocks.size(); ++i) {
-        if (!fn_declared && token::vars.find(tokens[blocks[i].first].val) != token::vars.end())
-            interpreter::declare_obj(ast_node::subarray(tokens, blocks[i].first, blocks[i].second), true);
+        if (!fn_declared && token::vars.find(tokens[blocks[i].first].val) != token::vars.end()) 
+            interpreter::declare_obj(ast_node::subarray(tokens, blocks[i].first, blocks[i].second), true); 
         else if (!main_declared && tokens[blocks[i].first].val == "fn") {
             fn_declared = true;
             main_declared = declare_fn(blocks[i].first, blocks[i].second);
@@ -28,7 +27,7 @@ void interpreter::declare_obj(std::vector <token> obj, bool to_global) {
     if (!memory::valid(obj.back().val))
         err("cannot redeclare existing symbol \"" + obj.back().val + "\"", obj.back().line);
     o_type t_obj = object::str_o_type(obj.front().val);
-    std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>> store;
+    std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>, std::unordered_set<object* , obj_hash, obj_equals>, std::unordered_map<object*, object*, obj_hash, obj_equals>> store;
     if (obj.front().val == "num")
         store = (double) 0;
     else if (obj.front().val == "bool")
@@ -37,6 +36,14 @@ void interpreter::declare_obj(std::vector <token> obj, bool to_global) {
         store = "";
     else if (obj.front().val == "arr")
         store = std::vector<object *>();
+    else if(obj.front().val == "queue")
+        store = std::queue<object *>();
+    else if(obj.front().val == "stack")
+        store = std::stack<object *>();
+    else if(obj.front().val == "set")
+        store = std::unordered_set<object* , obj_hash, obj_equals>();
+    else if(obj.front().val == "map")
+        store = std::unordered_map<object*, object*, obj_hash, obj_equals>();
     else
         err("unimplemented var type");
 
@@ -46,12 +53,14 @@ void interpreter::declare_obj(std::vector <token> obj, bool to_global) {
 }
 
 bool interpreter::declare_fn(int start, int end) {
+    std::cout << "what";
     int beg = start + 1;
     if (end - start < 7)
         err("function declaration is too short", tokens[end].line);
     if (tokens[start].val == "fn" &&
         (tokens[++start].val == "main" || memory::valid(tokens[start].val)) &&
         token::vars.find(tokens[++start].val) != token::vars.end()) {
+        std::cout << "what";
         object *fn_obj = new object(o_fn);
         fn_obj->f_return = object::str_o_type(tokens[start].val);
         ++start;

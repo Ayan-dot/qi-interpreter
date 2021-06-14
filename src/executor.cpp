@@ -57,7 +57,47 @@ object *executor::run(ast_node *u) {
                         err("at requires 1 argument", u->children[1].val.line);
                     object *arg = run(&(u->children[1].children[0]));
                     return target->at(arg);
-                } else
+                }
+                else if(method == "sub") {
+                    if (u->children[1].children.size() > 3)
+                        err("sub requires 0-3 arguments", u->children[1].val.line);
+                    object *arg;
+                    object *arg2;
+                    object *arg3;
+                    switch(u->children[1].children.size()) {
+                        case 1: {
+                            arg = run(&(u->children[1].children[0]));
+                            return target->sub(arg);
+                            break; }
+                        case 2: {
+                            arg = run(&(u->children[1].children[0]));
+                            arg2 = run(&(u->children[1].children[1]));
+                            return target->sub(arg, arg2);
+                            break; }
+                        case 3: {
+                            arg = run(&(u->children[1].children[0]));
+                            arg2 = run(&(u->children[1].children[1]));
+                            arg3 = run(&(u->children[1].children[2]));
+                            return target->sub(arg, arg2, arg3);
+                            break; }
+                        default: {
+                            return target->sub();
+                            break; }
+                    }
+                }
+                else if (method == "contains") {
+                    if (u->children[1].children.size() == 0)
+                        err("contains requires 1 argument", u->children[1].val.line);
+                    object *arg = run(&(u->children[1].children[0]));
+                    return target->contains(arg);
+                }
+                else if(method == "next")
+                    return target->next();
+                else if(method == "last")
+                    return target->last();
+                else if(method == "empty")
+                    return target->empty();
+                else
                     err("unknown method \"" + method + "\"", u->val.line);
             }
 

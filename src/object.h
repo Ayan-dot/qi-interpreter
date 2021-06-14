@@ -40,9 +40,22 @@ public:
     std::string str();
 };
 
+class object;
+
+struct obj_equals {
+    public: 
+    bool operator()(object * o1, object * o2) const;
+};
+
+struct obj_hash {
+    public: 
+    std::size_t operator()(object * o) const;
+
+};
+
 class object {
 public:
-    std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>> store;
+    std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>, std::unordered_set<object* , obj_hash, obj_equals>, std::unordered_map<object*, object*, obj_hash, obj_equals>> store;
     o_type type;
 
     std::vector <f_param> f_params;
@@ -58,13 +71,13 @@ public:
     object(o_type _type);
 
     void
-    set(std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>> _store);
+    set(std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>, std::unordered_set<object* , obj_hash, obj_equals>, std::unordered_map<object*, object*, obj_hash, obj_equals>>_store);
 
     void set_params(std::vector <f_param> &_f_params);
 
     void set_body(ast_node *_f_body);
 
-    bool is_int();
+    bool is_int(bool positive);
 
     object *push(object *o);
 
@@ -72,9 +85,25 @@ public:
 
     object *len();
 
+    object *empty();
+
+    object *contains(object* o);
+
     object *reverse();
 
     object *at(object *index);
+
+    object *next();
+
+    object *last();
+
+     object *sub();
+
+    object *sub(object * start);
+
+    object *sub(object * start, object * end);
+
+    object *sub(object * start, object * end, object * step);
 
     object *add(object *o);
 
@@ -144,6 +173,8 @@ public:
 
     std::string str();
 };
+
+
 
 
 #endif //QI_INTERPRETER_OBJECT_H

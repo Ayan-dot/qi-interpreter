@@ -8,9 +8,11 @@ int main(int argc, char *argv[]) {
     fstream stream((std::string(argv[1])));
     lexer tokenizer(stream);
     std::vector <token> tokens = tokenizer.tokenize();
-
+    std::cout << "what";
     interpreter runtime(tokens);
+    std::cout << "what";
     runtime.execute();
+    
 
     return 0;
 }
