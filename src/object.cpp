@@ -324,9 +324,9 @@ object *object::reverse() {
 }
 
 object *object::at(object *index) {
-    int i = (int) std::get<double>(index->store);
     switch (type) {
         case o_str: {
+           int i = (int) std::get<double>(index->store);
             if (!index->is_int(true))
                 err("index must be an unsigned integer");
             if (!(i >= 0 && i < std::get<std::string>(store).size()))
@@ -336,6 +336,7 @@ object *object::at(object *index) {
             return ret;
         }
         case o_arr: {
+           int i = (int) std::get<double>(index->store);
             if (!index->is_int(true))
                 err("index must be an unsigned integer");
             if (!(i >= 0 && i < std::get < std::vector < object * >> (store).size()))
@@ -343,8 +344,14 @@ object *object::at(object *index) {
             return std::get < std::vector < object * >> (store)[i];
         }
         case o_map: {
-        std::cout << "huh";
-        return std::get<std::unordered_map<object*, object* , obj_hash, obj_equals>>(store)[(index)];
+          if(std::get<std::unordered_map<object*, object*, obj_hash, obj_equals>>(store).find(index) != std::get<std::unordered_map<object*, object*, obj_hash, obj_equals>>(store).end())
+            return std::get<std::unordered_map<object*, object*, obj_hash, obj_equals>>(store)[index];
+          else {
+            object * val = new object();
+            std::get<std::unordered_map<object*, object*, obj_hash, obj_equals>>(store)[index] = val;
+            return val;
+          }
+          
         }
         default: {
             err("at() is not supported on this object");
@@ -777,7 +784,7 @@ object *object::equal(object *o) {
     if (type == o_bool)
         store.swap(o->to_bool()->store);
     else {
-        if (type != o->type || type == o_fn)
+        if ((type != o->type  && type != o_none) || type == o_fn)
             err("cannot assign differently typed variables");
         store.swap(o->store);
     }
@@ -825,6 +832,6 @@ object *object::_or(object *o) {
 }
 
 void object::set(
-        std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>, std::unordered_set<object* , obj_hash, obj_equals>, std::unordered_map<object*, object*, obj_hash, obj_equals> > _store) {
+        std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>, std::unordered_set<object* , obj_hash, obj_equals>, std::unordered_map<object*, object*, obj_hash, obj_equals>> _store) {
     store.swap(_store);
 }
