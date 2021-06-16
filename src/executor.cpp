@@ -44,8 +44,8 @@ object *executor::run(ast_node *u) {
                 if (method == "push") {
                     if (u->children[1].children.size() == 0)
                         err("push requires 1 argument", u->children[1].val.line);
-                    object *arg = run(&(u->children[1].children[0]));
-                    return target->push(arg);
+                    object *arg1 = run(&(u->children[1].children[0]));
+                    return target->push(arg1);
                 } else if (method == "pop")
                     return target->pop();
                 else if (method == "len")
@@ -57,35 +57,43 @@ object *executor::run(ast_node *u) {
                 else if (method == "at") {
                     if (u->children[1].children.size() == 0)
                         err("at requires 1 argument", u->children[1].val.line);
-                    object *arg = run(&(u->children[1].children[0]));
-                    return target->at(arg);
+                    object *arg1 = run(&(u->children[1].children[0]));
+                    return target->at(arg1);
                 }
                 else if(method == "sub") {
                     if (u->children[1].children.size() > 3)
                         err("sub requires 0-3 arguments", u->children[1].val.line);
-                    object *arg;
+                    object *arg1;
                     object *arg2;
                     object *arg3;
                     switch(u->children[1].children.size()) {
                         case 1: {
-                            arg = run(&(u->children[1].children[0]));
-                            return target->sub(arg);
+                            arg1 = run(&(u->children[1].children[0]));
+                            return target->sub(arg1);
                             break; }
                         case 2: {
-                            arg = run(&(u->children[1].children[0]));
+                            arg1 = run(&(u->children[1].children[0]));
                             arg2 = run(&(u->children[1].children[1]));
-                            return target->sub(arg, arg2);
+                            return target->sub(arg1, arg2);
                             break; }
                         case 3: {
-                            arg = run(&(u->children[1].children[0]));
+                            arg1 = run(&(u->children[1].children[0]));
                             arg2 = run(&(u->children[1].children[1]));
                             arg3 = run(&(u->children[1].children[2]));
-                            return target->sub(arg, arg2, arg3);
+                            return target->sub(arg1, arg2, arg3);
                             break; }
                         default: {
                             return target->sub();
                             break; }
                     }
+                }
+                else if(method == "fill") {
+                     if (u->children[1].children.size() != 3)
+                        err("contains requires 3 arguments", u->children[1].val.line);
+                    object *arg1 = run(&(u->children[1].children[0]));
+                    object *arg2 = run(&(u->children[1].children[1]));
+                    object *arg3 = run(&(u->children[1].children[2]));
+                    return target->fill(arg1, arg2, arg3);
                 }
                 else if (method == "contains") {
                     if (u->children[1].children.size() == 0)

@@ -1,3 +1,11 @@
 fn main none () start
-  
+  arr x
+  x.push(5)
+  x.push(6)
+  x.push(7)
+  out x
+  num u 
+  u = 4
+  x.fill(0,2,"funny")
+  out x
 end
