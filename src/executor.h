@@ -1,3 +1,8 @@
+/*
+ * executor.h contains:
+ *   - Declarations for the function executor
+ */
+
 #ifndef QI_INTERPRETER_EXECUTOR_H
 #define QI_INTERPRETER_EXECUTOR_H
 
@@ -10,6 +15,8 @@
 #include "token.h"
 #include "util.h"
 
+/// executor class that visits the Abstract Syntax Tree supplied as a
+/// function body
 class executor {
 private:
     ast_node *tree;

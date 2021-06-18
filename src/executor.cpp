@@ -1,15 +1,27 @@
+/*
+ * executor.cpp contains:
+ *   - Definitions for the function executor
+ *   - Resolved for the AST
+ */
+
 #include "executor.h"
 
+/// constructor for the executor
+/// \param _tree: AST that will be executed
+/// \param _parent: parent of AST (function)
 executor::executor(ast_node *_tree, object *_parent) {
     tree = _tree;
     parent = _parent;
 }
 
+/// starts the executor
+/// \return the return value of the function or none
 object *executor::init() {
     has_return = false;
     has_continue = false;
     has_break = false;
     object *res = run(tree);
+    // validate return
     if (has_return && parent->f_return == o_none)
         err("none function returned non-none object");
     if (!has_return && parent->f_return != o_none)
@@ -23,14 +35,25 @@ object *executor::init() {
     return has_return ? return_val : res;
 }
 
+/// recursively executes an AST with an inorder DFS traversal of the
+/// AST, with flags for if `return`, `continue` or `break` is called
+/// \param u: current AST node
+/// \return return value from subbranch/leaf execution
 object *executor::run(ast_node *u) {
+    // only execute if no flags are set
     if (!(has_return || has_continue || has_break)) {
+        // holds results from executing children
         std::vector < object * > sub;
         if (token::vars.find(u->val.val) != token::vars.end())
             interpreter::declare_obj({u->val, u->children[0].val});
         else if (u->val.type == t_group) {
+            // execute all blocks in group
             for (int i = 0; i < u->children.size(); ++i) {
                 if (!(has_return || has_continue || has_break)) {
+                    // if we are at an elsif or else block, we must
+                    // validate by checking if the previous block was
+                    // an if block; otherwise, this is invalid
+                    // grammar and we can throw an error
                     if (u->children[i].val.val == "elsif") {
                         if (i == 0 || (u->children[i - 1].val.val != "if" && u->children[i - 1].val.val != "elsif"))
                             err("elsif must follow if or elsif", u->children[i].val.line);
@@ -48,6 +71,8 @@ object *executor::run(ast_node *u) {
                 }
             }
         } else if (token::control.find(u->val.val) != token::control.end()) {
+            // if control structure: test condition, then execute
+            // its body accordingly
             if (u->val.val == "if" || u->val.val == "elsif") {
                 object *ret = new object(o_bool);
                 if (std::get<bool>(run(&u->children[0])->to_bool()->store)) {
@@ -59,8 +84,13 @@ object *executor::run(ast_node *u) {
             } else if (u->val.val == "else") {
                 run(&u->children[0]);
             } else if (u->val.val == "while") {
+                // execute the while loop
                 while (std::get<bool>(run(&u->children[0])->to_bool()->store)) {
+                    // run the body
                     run(&u->children[1]);
+                    // if continue or break is called while running
+                    // the body, then perform the correct action
+                    // and unset the flag
                     if (has_continue)
                         has_continue = false;
                     if (has_break) {
@@ -69,6 +99,7 @@ object *executor::run(ast_node *u) {
                     }
                 }
             } else if (u->val.val == "for") {
+                // validate for loop condition
                 if (u->children.size() != 2)
                     err("invalid for loop structure", u->val.line);
                 else if (u->children[0].val.val != "of")
@@ -84,6 +115,8 @@ object *executor::run(ast_node *u) {
                         *start = new object(o_num),
                         *end = new object(o_num),
                         *every = new object(o_num);
+
+                // add the loop variable, e.g. `i` to the memory
                 memory::add(of->children[0].val.val, it);
 
                 start->set((double) 0);
@@ -133,6 +166,7 @@ object *executor::run(ast_node *u) {
                     }
                 }
 
+                // remove the for loop variable from memory
                 memory::remove(of->children[0].val.val);
             } else
                 err("unsupported control structure", u->val.line);
@@ -142,6 +176,8 @@ object *executor::run(ast_node *u) {
                 err("incorrect number of children for operation \"" + u->val.val + "\"", u->val.line);
             }
 
+            // dot operator: perform function on right to the operand
+            // on the left hand side
             if (u->val.val == ".") {
                 object *target = run(&(u->children[0]));
                 std::string method = u->children[1].val.val;
@@ -211,6 +247,7 @@ object *executor::run(ast_node *u) {
                 else
                     err("unknown method \"" + method + "\"", u->val.line);
             } else if (u->val.val == "in") {
+                // take in input and valid assignment
                 object *var = run(&(u->children[0]));
                 std::string in;
                 std::getline(std::cin, in);
@@ -233,6 +270,7 @@ object *executor::run(ast_node *u) {
                     }
                 }
                 return new object();
+                // raise loop flags
             } else if (u->val.val == "continue") {
                 has_continue = true;
                 return new object();
@@ -243,6 +281,7 @@ object *executor::run(ast_node *u) {
 
             for (ast_node &v : u->children)
                 sub.push_back(run(&v));
+            // perform operation
             if (u->val.val == "out")
                 std::cout << sub[0]->str();
             else if (u->val.val == "outl")
@@ -315,6 +354,7 @@ object *executor::run(ast_node *u) {
                 return sub[0]->_or(sub[1]);
             else if (u->val.val == "not")
                 return sub[0]->_not();
+                // add return value and raise the flag
             else if (u->val.val == "return") {
                 return_val = new object(sub[0]->type);
                 return_val->equal(sub[0]);
@@ -323,7 +363,9 @@ object *executor::run(ast_node *u) {
             } else
                 err("operator \"" + u->val.val + "\" not implemented", u->val.line);
         } else if (u->val.type == t_symbol) {
+            // symbols are variables or functions
             if (memory::has(u->val.val)) {
+                // handle user-defined variables/functions
                 object *obj = memory::get(u->val.val);
                 if (obj->type != o_fn)
                     return obj;
@@ -346,6 +388,7 @@ object *executor::run(ast_node *u) {
 
                 return ret;
             } else if (token::methods.find(u->val.val) != token::methods.end()) {
+                // handle builtin functions
                 if (u->val.val == "floor") {
                     if (u->children.size() != 1)
                         err("floor requires 1 argument", u->val.line);
@@ -366,6 +409,7 @@ object *executor::run(ast_node *u) {
             } else
                 err("symbol \"" + u->val.val + "\" is undefined", u->val.line);
         } else if (u->val.type == t_num) {
+            // return base leaf num
             object *tmp = new object(o_num);
             std::size_t offset = 0;
             double self = std::stod(u->val.val, &offset);
@@ -374,14 +418,12 @@ object *executor::run(ast_node *u) {
             tmp->set(self);
             return tmp;
         } else if (u->val.type == t_str) {
+            // return base leaf str
             object *tmp = new object(o_str);
             tmp->set(u->val.val);
             return tmp;
         }
     }
 
-    return new
-
-            object();
-
+    return new object();
 }

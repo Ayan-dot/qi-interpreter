@@ -1,5 +1,11 @@
+/*
+ * token.cpp contains:
+ *   - Definitions for the token class
+ */
+
 #include "token.h"
 
+// static vars
 std::unordered_map <std::string, std::pair<int, int>> token::builtins =
         std::unordered_map < std::string, std::pair<int, int>>
 ();
@@ -8,7 +14,9 @@ std::unordered_set <std::string> token::vars = std::unordered_set<std::string>()
 std::unordered_set <std::string> token::methods = std::unordered_set<std::string>();
 int token::pre_none = 12;
 
+/// initializes all static variables
 void token::init() {
+    // structure: first -> ops, second -> precedence
     token::builtins.insert({"+", {2, 5}});
     token::builtins.insert({"-", {2, 5}});
     token::builtins.insert({"*", {2, 6}});
@@ -71,12 +79,14 @@ void token::init() {
     token::builtins.insert({")", {0, 2 * token::pre_none}});
     token::builtins.insert({".", {2, 8}});
 
+    // control structure keywords
     token::control.insert("if");
     token::control.insert("elsif");
     token::control.insert("else");
     token::control.insert("for");
     token::control.insert("while");
 
+    // variable types
     token::vars.insert("num");
     token::vars.insert("bool");
     token::vars.insert("str");
@@ -87,12 +97,18 @@ void token::init() {
     token::vars.insert("stack");
     token::vars.insert("none");
 
+    // builtin functions
     token::methods.insert("floor");
     token::methods.insert("ceil");
     token::methods.insert("round");
     token::methods.insert("rand");
 }
 
+/// parameterized constructor
+/// \param _val: val
+/// \param _line: line number
+/// \param _type: token type
+/// \param _ops: number of sub ops
 token::token(std::string _val, int _line, t_type _type, int _ops) {
     val = _val;
     line = _line;
@@ -100,10 +116,15 @@ token::token(std::string _val, int _line, t_type _type, int _ops) {
     ops = _ops;
 }
 
+/// generates a string representation of the token
+/// \return the string reprsentation of the token
 std::string token::str() const {
     std::stringstream ret;
     ret << "<token: \"" << val << "\", " << line << ", " << type << ", " << ops << ">";
     return ret.str();
 }
 
+/// overloaded assignment operator
+/// \param other: the object to copy
+/// \return reference to this token
 token &token::operator=(const token &other) = default;

@@ -1,3 +1,9 @@
+/*
+ * util.cpp contains:
+ *   - Print util definition
+ *   - Error util (overloaded) definition
+ */
+
 #include "util.h"
 
 void out() {

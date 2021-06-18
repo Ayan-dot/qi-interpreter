@@ -1,3 +1,8 @@
+/*
+ * ast_node.h contains:
+ *   - Declarations for the Abstract Syntax Tree Node
+ */
+
 #ifndef QI_INTERPRETER_AST_NODE_H
 #define QI_INTERPRETER_AST_NODE_H
 
@@ -8,7 +13,9 @@
 #include "token.h"
 #include "util.h"
 
-
+/// ast_node is a node in the Abstract Syntax Tree that recursively
+/// creates its children nodes upon initialization, performing
+/// basic syntax and grammar validation
 class ast_node {
 public:
     token val;
@@ -24,6 +31,5 @@ public:
 
     void print();
 };
-
 
 #endif //QI_INTERPRETER_AST_NODE_H

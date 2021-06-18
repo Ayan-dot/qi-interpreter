@@ -1,3 +1,8 @@
+/*
+ * lexer.h contains:
+ *   - Declarations for the lexer
+ */
+
 #ifndef QI_INTERPRETER_LEXER_H
 #define QI_INTERPRETER_LEXER_H
 
@@ -10,7 +15,8 @@
 #include "token.h"
 #include "util.h"
 
-
+/// reads in a stream of characters and parses the characters into
+/// pre-defined tokens
 class lexer {
 private:
     fstream stream;
@@ -32,6 +38,5 @@ public:
 
     std::vector <token> tokenize();
 };
-
 
 #endif //QI_INTERPRETER_LEXER_H

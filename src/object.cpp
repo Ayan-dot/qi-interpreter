@@ -1,5 +1,15 @@
+/*
+ * object.h contains:
+ *   - Definitions for the object class
+ *   - Definitions for the object hash and object comparator
+ *   - Definitions for the function parameter class
+ */
+
 #include "object.h"
 
+/// takes in an object type and returns it as a string
+/// \param t: the type as o_type
+/// \return the type as string
 std::string object::o_type_str(o_type t) {
     switch (t) {
         case o_none:
@@ -27,6 +37,9 @@ std::string object::o_type_str(o_type t) {
     }
 }
 
+/// takes in a string and returns it as an object_type
+/// \param t: the type as a string
+/// \return the type as o_type
 o_type object::str_o_type(std::string s) {
     if (s == "none")
         return o_none;
@@ -51,20 +64,27 @@ o_type object::str_o_type(std::string s) {
     else return o_none;
 }
 
+/// `f_param` empty constructor
 f_param::f_param() {
     type = o_none;
 }
 
+/// `f_param` parameterized constructor
 f_param::f_param(o_type _type, std::string _symbol) {
     type = _type;
     symbol = _symbol;
 }
 
-
+/// generates a string representation of the function parameter
+/// \return the repr of the function representation
 std::string f_param::str() {
     return object::o_type_str(type) + " " + symbol;
 }
 
+/// checks if the two given objects are equal
+/// \param o1: the first object
+/// \param o2: the second object
+/// \return whether the objects are equal
 bool obj_equals::operator()(object *o1, object *o2) const {
     if (o1->type != o2->type)
         return false;
@@ -83,6 +103,9 @@ bool obj_equals::operator()(object *o1, object *o2) const {
     return false;
 }
 
+/// creates a hash for str and num objects
+/// \param o: the object for which a hash is created
+/// \return the hashed value
 std::size_t obj_hash::operator()(object *o) const {
     switch (o->type) {
         case o_num: {
@@ -99,22 +122,29 @@ std::size_t obj_hash::operator()(object *o) const {
     return 0;
 }
 
+/// `object` empty constructor
 object::object() {
     type = o_none;
 }
 
+/// `object` parameter constructor
 object::object(o_type _type) {
     type = _type;
 }
 
+/// set the parameters for when the object is a function
 void object::set_params(std::vector <f_param> &_f_params) {
     f_params = _f_params;
 }
 
+/// set the function body for when the object is a function
 void object::set_body(ast_node *_f_body) {
     f_body = _f_body;
 }
 
+/// generates a string representation of the object, recursively when
+/// required by the object type (e.g. arrays)
+/// \return
 std::string object::str() {
     switch (type) {
         case o_fn: {
@@ -145,24 +175,39 @@ std::string object::str() {
             ss << "}";
             return ss.str();
         }
+        case o_queue: {
+            return "<queue>";
+        }
+        case o_stack: {
+            return "<stack>";
+        }
+        case o_set: {
+            return "<set>";
+        }
+        case o_map: {
+            return "<map>";
+        }
         default: {
             return "none";
         }
     }
 }
 
+/// checks whether an object is an integer
+/// \return whether this object is an integer
 bool object::is_int() {
     return std::holds_alternative<double>(store) &&
            std::get<double>(store) == static_cast<int>(std::get<double>(store));
 }
 
+/// push a new object to the current object
+/// \param o: the new object
+/// \return none
 object *object::push(object *o) {
     switch (type) {
         case o_arr: {
             object *copy = new object(o->type);
             copy->equal(o);
-//            for (auto t1 : std::get < std::vector < object * >> (copy->store))
-//                out(t1->str());
             std::get < std::vector < object * >> (store).push_back(copy);
             break;
         }
@@ -192,6 +237,8 @@ object *object::push(object *o) {
     return new object();
 }
 
+/// pops an object from this object
+/// \return the popped object
 object *object::pop() {
     switch (type) {
         case o_str: {
@@ -216,6 +263,8 @@ object *object::pop() {
     return new object();
 }
 
+/// gets the length of this object
+/// \return the length of this object
 object *object::len() {
     switch (type) {
         case o_str: {
@@ -245,12 +294,19 @@ object *object::len() {
     }
 }
 
+/// checks if this object is empty (size is 0)
+/// \return true if the object is empty
 object *object::empty() {
     object *ret = new object(o_bool);
     ret->set(std::get<double>(len()->store) == 0);
     return ret;
 }
 
+/// finds the index of an object within another object, unless this
+/// object is a map or set, in which case it returns true if the
+/// object is defined in the collection
+/// \param o: the queried object
+/// \return index or boolean
 object *object::find(object *o) {
     object *ret = new object(o_num);
     switch (type) {
@@ -293,6 +349,8 @@ object *object::find(object *o) {
     return ret;
 }
 
+/// reverses this object in place
+/// \return none
 object *object::reverse() {
     switch (type) {
         case o_str: {
@@ -312,6 +370,12 @@ object *object::reverse() {
     return new object();
 }
 
+/// fills the collection from range [start, end] with the specified
+/// value given in the function in the form of an object
+/// \param start: start index
+/// \param end: end index
+/// \param o: value to be filled
+/// \return: none
 object *object::fill(object *start, object *end, object *o) {
     if (type != o_arr)
         err("fill() may only be called on type arr");
@@ -331,6 +395,10 @@ object *object::fill(object *start, object *end, object *o) {
     return new object();
 }
 
+/// returns the object at the specified index (or key in the case of
+/// when the variable type is a map)
+/// \param index: the queried index
+/// \return object at index
 object *object::at(object *index) {
     switch (type) {
         case o_str: {
@@ -367,6 +435,8 @@ object *object::at(object *index) {
     }
 }
 
+/// \return the front value in the queue or the top value in the
+///         stack
 object *object::next() {
     switch (type) {
         case o_queue: {
@@ -388,6 +458,7 @@ object *object::next() {
     }
 }
 
+/// \return the last object in the collection
 object *object::last() {
     switch (type) {
         case o_str: {
