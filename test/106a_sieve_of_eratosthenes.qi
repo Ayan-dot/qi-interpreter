@@ -11,7 +11,7 @@ fn main none () start
         sieve.push(1)
     end
 
-    out 2
+    outl 2
 
     for i of range(3, n, 2) start
         if sieve.at(i) == 1 start
