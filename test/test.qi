@@ -1,5 +1,7 @@
 fn main none () start
-    for fi of range(5) start
-        out fi + " "
-    end
+   str x 
+   x = "huh"
+   num x 
+   x = 10
 end
+
