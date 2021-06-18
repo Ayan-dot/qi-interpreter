@@ -1,6 +1,5 @@
 fn main none () start
-   str x 
-   x = "ayan"
-   x.sort()
-   out x
+    for fi of range(5) start
+        out fi + " "
+    end
 end
