@@ -2,24 +2,18 @@ fn main none () start
     arr a
     arr b
     num n
-    n = 3
+
+    out "enter 2d square array len: "
+    in n
 
     for i of range(n) start
-        b.push(-1)
+        b.push(0)
     end
 
     for i of range(n) start
         a.push(b)
-        b.clear()
     end
 
-    b.push(10)
-    a.at(0).at(0) = 3
-    a.at(1).push(12)
-    a.at(1).push(13)
-    a.at(1).push(14)
-    a.at(1).push(5**2)
-    a.at(2).push(15)
-    outl b
+    a.at(0).at(0) = 10
     out a
 end
