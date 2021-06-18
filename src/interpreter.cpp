@@ -1,11 +1,26 @@
+/*
+ * interpreter.cpp contains:
+ *   - Definitions for the interpreter
+ */
+
 #include "interpreter.h"
 
+/// initializes the interpreter and adds global variables and all
+/// function declaration to global memory
+/// \param _tokens: token sequence from the lexer
 interpreter::interpreter(std::vector <token> &_tokens) {
     tokens = _tokens;
     std::vector <std::pair<int, int >> blocks = ast_node::gen_blocks(tokens, false);
+    // flags to enforce the definition of the file in the following order:
+    // 1) global variables
+    // 2) function declarations
+    // 3) main function
     bool fn_declared = false;
     bool main_declared = false;
 
+    // go through blocks -> each block MUST be either a function or a line
+    // lines: must be variable declarations
+    // functions: must be non-main until the last one
     for (int i = 0; i < blocks.size(); ++i) {
         if (!fn_declared && token::vars.find(tokens[blocks[i].first].val) != token::vars.end())
             interpreter::declare_obj(ast_node::subarray(tokens, blocks[i].first, blocks[i].second), true);
@@ -20,6 +35,11 @@ interpreter::interpreter(std::vector <token> &_tokens) {
         err("main function not declared");
 }
 
+/// creates a new object and adds it onto the stack or to the global
+/// memory based on defined scoping
+/// \param obj: the tokens required to define the object
+/// \param to_global: whether to commit the new declaration to the
+///                   global memory scope
 void interpreter::declare_obj(std::vector <token> obj, bool to_global) {
     if (obj.size() != 2)
         err("variable declaration format is [type] [identifier]", obj.back().line);
@@ -53,6 +73,10 @@ void interpreter::declare_obj(std::vector <token> obj, bool to_global) {
     memory::add(obj.back().val, tmp, to_global);
 }
 
+/// validates and declares a function
+/// \param start: the start index of the function declaration
+/// \param end: the end index of the function declaration
+/// \return true if the function is valid
 bool interpreter::declare_fn(int start, int end) {
     int beg = start + 1;
     if (end - start < 7)
@@ -117,17 +141,20 @@ bool interpreter::declare_fn(int start, int end) {
     return false;
 }
 
+/// executes the body of the main function to start the program
 void interpreter::execute() {
     object *root = memory::get("main");
     if (root->f_params.size() != 0)
         err("main must have no parameters");
     if (root->f_return != o_none)
-        err("main must return type none");
+        err("main must have return type none");
+    // push the first scope to memory
     memory::push();
     executor *process = new executor(root->f_body, root);
     auto start = std::chrono::high_resolution_clock::now();
     process->init();
     auto stop = std::chrono::high_resolution_clock::now();
+    // times the runtime
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
     std::cout << "\n\n";
     out("execution complete in " + std::to_string(duration.count()) + " microseconds");

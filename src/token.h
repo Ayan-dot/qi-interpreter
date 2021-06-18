@@ -1,3 +1,9 @@
+/*
+ * token.h contains:
+ *   - Token types as enumerators
+ *   - Declaration for the token class
+ */
+
 #ifndef QI_INTERPRETER_TOKEN_H
 #define QI_INTERPRETER_TOKEN_H
 
@@ -7,7 +13,6 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
-
 
 enum t_type {
     t_none,
@@ -20,11 +25,11 @@ enum t_type {
     t_eof
 };
 
-
+/// token object
 class token {
 public:
     static std::unordered_map <std::string, std::pair<int, int>> builtins;
-    static std::unordered_set <std::string> control, vars;
+    static std::unordered_set <std::string> control, vars, methods;
     static int pre_none;
 
     std::string val;
@@ -39,6 +44,5 @@ public:
 
     token &operator=(const token &other);
 };
-
 
 #endif //QI_INTERPRETER_TOKEN_H
