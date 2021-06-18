@@ -1,14 +1,16 @@
-fn expo num (num n, num exponent) start 
-    if exponent == 0 start 
+fn pow num (num base, num exp) start
+    if exp < 1 start
         return 1
     end
-    return n * expo(n, exponent -1)
+    return base * pow(base, exp - 1)
 end
 
 fn main none () start
-    num base
-    in base 
-    num power
-    in power
-    out expo(base, power)
+    num b
+    num e
+    out "Enter the base: "
+    in b
+    out "Enter the exponent: "
+    in e
+    out b + "^" + e + " is " + pow(b, e) $ b ** e
 end
