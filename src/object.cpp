@@ -609,7 +609,7 @@ object *object::divide(object *o) {
 object *object::truncate_divide(object *o) {
     if (type == o_num && type == o->type) {
         object *ret = new object(o_num);
-        ret->set((double) floor(std::get<double>(store) / std::get<double>(o->store)));
+        ret->set((double) std::floor(std::get<double>(store) / std::get<double>(o->store)));
         return ret;
     }
     err("// not supported here");
@@ -910,6 +910,43 @@ object *object::_and(object *o) {
 object *object::_or(object *o) {
     object *ret = new object(o_bool);
     ret->set(std::get<bool>(to_bool()->store) || std::get<bool>(o->to_bool()->store));
+    return ret;
+}
+
+object *object::floor() {
+    if (type != o_num)
+        err("floor only applies to num");
+    object *ret = new object(o_num);
+    ret->set(std::floor(std::get<double>(store)));
+    return ret;
+}
+
+object *object::ceil() {
+    if (type != o_num)
+        err("ceil only applies to num");
+    object *ret = new object(o_num);
+    ret->set(std::ceil(std::get<double>(store)));
+    return ret;
+}
+
+object *object::round(object *o) {
+    if (type != o_num || !o->is_int() || !(std::get<double>(o->store) > 0))
+        err("rand takes a num and a positive, non-zero int");
+    int precision = (int) std::get<double>(o->store);
+    float pow_10 = std::pow(10.0f, (float) precision);
+    object *ret = new object(o_num);
+    ret->set(std::round(std::get<double>(store) * pow_10) / pow_10);
+    return ret;
+}
+
+object *object::rand() {
+    std::random_device rd;
+    std::default_random_engine eng(rd());
+    std::uniform_real_distribution<double> distr(0, 1);
+
+    object *ret = new object(o_num);
+
+    ret->set(distr(eng));
     return ret;
 }
 

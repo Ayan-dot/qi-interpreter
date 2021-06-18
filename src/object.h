@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <queue>
+#include <random>
 #include <stack>
 #include <sstream>
 #include <string>
@@ -62,7 +63,9 @@ public:
     o_type f_return;
     ast_node *f_body;
 
-    static std::string o_type_str(o_type t);
+    static std::string
+    o_type_str(o_type
+               t);
 
     static o_type str_o_type(std::string s);
 
@@ -180,6 +183,14 @@ public:
     object *_and(object *o);
 
     object *_or(object *o);
+
+    object *floor();
+
+    object *ceil();
+
+    object *round(object *o);
+
+    static object *rand();
 
     std::string str();
 };

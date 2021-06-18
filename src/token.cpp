@@ -5,6 +5,7 @@ std::unordered_map <std::string, std::pair<int, int>> token::builtins =
 ();
 std::unordered_set <std::string> token::control = std::unordered_set<std::string>();
 std::unordered_set <std::string> token::vars = std::unordered_set<std::string>();
+std::unordered_set <std::string> token::methods = std::unordered_set<std::string>();
 int token::pre_none = 12;
 
 void token::init() {
@@ -85,6 +86,11 @@ void token::init() {
     token::vars.insert("queue");
     token::vars.insert("stack");
     token::vars.insert("none");
+
+    token::methods.insert("floor");
+    token::methods.insert("ceil");
+    token::methods.insert("round");
+    token::methods.insert("rand");
 }
 
 token::token(std::string _val, int _line, t_type _type, int _ops) {
