@@ -5,9 +5,10 @@ interpreter::interpreter(std::vector <token> &_tokens) {
     std::vector <std::pair<int, int >> blocks = ast_node::gen_blocks(tokens, false);
     bool fn_declared = false;
     bool main_declared = false;
+
     for (int i = 0; i < blocks.size(); ++i) {
-        if (!fn_declared && token::vars.find(tokens[blocks[i].first].val) != token::vars.end()) 
-            interpreter::declare_obj(ast_node::subarray(tokens, blocks[i].first, blocks[i].second), true); 
+        if (!fn_declared && token::vars.find(tokens[blocks[i].first].val) != token::vars.end())
+            interpreter::declare_obj(ast_node::subarray(tokens, blocks[i].first, blocks[i].second), true);
         else if (!main_declared && tokens[blocks[i].first].val == "fn") {
             fn_declared = true;
             main_declared = declare_fn(blocks[i].first, blocks[i].second);
@@ -27,7 +28,7 @@ void interpreter::declare_obj(std::vector <token> obj, bool to_global) {
     if (!memory::valid(obj.back().val))
         err("cannot redeclare existing symbol \"" + obj.back().val + "\"", obj.back().line);
     o_type t_obj = object::str_o_type(obj.front().val);
-    std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>, std::unordered_set<object* , obj_hash, obj_equals>, std::unordered_map<object*, object*, obj_hash, obj_equals>> store;
+    std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>, std::unordered_set<object *, obj_hash, obj_equals>, std::unordered_map<object *, object *, obj_hash, obj_equals>> store;
     if (obj.front().val == "num")
         store = (double) 0;
     else if (obj.front().val == "bool")
@@ -36,14 +37,14 @@ void interpreter::declare_obj(std::vector <token> obj, bool to_global) {
         store = "";
     else if (obj.front().val == "arr")
         store = std::vector<object *>();
-    else if(obj.front().val == "queue")
+    else if (obj.front().val == "queue")
         store = std::queue<object *>();
-    else if(obj.front().val == "stack")
+    else if (obj.front().val == "stack")
         store = std::stack<object *>();
-    else if(obj.front().val == "set")
-        store = std::unordered_set<object* , obj_hash, obj_equals>();
-    else if(obj.front().val == "map")
-        store = std::unordered_map<object*, object*, obj_hash, obj_equals>();
+    else if (obj.front().val == "set")
+        store = std::unordered_set<object *, obj_hash, obj_equals>();
+    else if (obj.front().val == "map")
+        store = std::unordered_map<object *, object *, obj_hash, obj_equals>();
     else
         err("unimplemented var type");
 
@@ -124,6 +125,11 @@ void interpreter::execute() {
         err("main must return type none");
     memory::push();
     executor *process = new executor(root->f_body, root);
+    auto start = std::chrono::high_resolution_clock::now();
     process->init();
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    std::cout << "\n\n";
+    out("execution complete in " + std::to_string(duration.count()) + " microseconds");
     memory::pop();
 }

@@ -25,6 +25,12 @@ void memory::add(std::string id, object *obj, bool to_global) {
     }
 }
 
+void memory::remove(std::string id) {
+    if (memory::stack.top()->table.find(id) == memory::stack.top()->table.end())
+        err("tried removing non-existing variable");
+    memory::stack.top()->table.erase(id);
+}
+
 object *memory::get(std::string id) {
     if (memory::global->table.find(id) != memory::global->table.end())
         return memory::global->table[id];

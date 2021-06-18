@@ -30,11 +30,15 @@ std::string lexer::scan_regex(const std::string &expr) {
 
 std::string lexer::scan_str(const char &delim) {
     std::string ret;
-    while (stream.next() != '\0') {
+    while (stream.next() != 0) {
+        char prev = stream.curr();
         stream.move();
         if (stream.curr() == delim)
             return ret;
-        ret.push_back(stream.curr());
+        else if (prev == '\\' && stream.curr() == 'n') {
+            ret.pop_back();
+            ret.push_back('\n');
+        } else ret.push_back(stream.curr());
     }
     err("unclosed string", line);
     return ret;
@@ -48,7 +52,7 @@ void lexer::scan_lb() {
 }
 
 void lexer::scan_comment() {
-    while (stream.next() != '\0') {
+    while (stream.next() != 0) {
         stream.move();
         if (matches(stream.curr(), r_lb)) {
             ++line;
@@ -93,8 +97,9 @@ std::vector <token> lexer::tokenize() {
             else
                 err("unrecognized operator", line);
         } else {
-			//std::cout << "char: " << curr << std::endl;
-		}
+            err("unrecognized symbol", line);
+        }
     }
     return tokens;
 }
+

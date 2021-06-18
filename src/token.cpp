@@ -13,6 +13,7 @@ void token::init() {
     token::builtins.insert({"*", {2, 6}});
     token::builtins.insert({"**", {2, 7}});
     token::builtins.insert({"/", {2, 6}});
+    token::builtins.insert({"//", {2, 6}});
     token::builtins.insert({"==", {2, 3}});
     token::builtins.insert({"!=", {2, 3}});
     token::builtins.insert({"<", {2, 3}});
@@ -31,6 +32,7 @@ void token::init() {
     token::builtins.insert({"*=", {2, 1}});
     token::builtins.insert({"**=", {2, 1}});
     token::builtins.insert({"/=", {2, 1}});
+    token::builtins.insert({"//=", {2, 1}});
     token::builtins.insert({"%=", {2, 1}});
     token::builtins.insert({">>=", {2, 1}});
     token::builtins.insert({"<<=", {2, 1}});
@@ -42,6 +44,7 @@ void token::init() {
     token::builtins.insert({"not", {1, 4}});
     token::builtins.insert({"or", {2, 12}});
     token::builtins.insert({"if", {2, 2 * token::pre_none}});
+    token::builtins.insert({"elsif", {2, 2 * token::pre_none}});
     token::builtins.insert({"else", {1, 2 * token::pre_none}});
     token::builtins.insert({"start", {0, 2 * token::pre_none}});
     token::builtins.insert({"end", {0, 2 * token::pre_none}});
@@ -50,8 +53,9 @@ void token::init() {
     token::builtins.insert({"while", {2, 2 * token::pre_none}});
     token::builtins.insert({"for", {2, 2 * token::pre_none}});
     token::builtins.insert({"of", {2, -1}});
-    token::builtins.insert({"in", {2, 2 * token::pre_none}});
+    token::builtins.insert({"in", {1, 0}});
     token::builtins.insert({"out", {1, 0}});
+    token::builtins.insert({"outl", {1, 0}});
     token::builtins.insert({"return", {1, 0}});
     token::builtins.insert({"fn", {4, 2 * token::pre_none}});
     token::builtins.insert({"num", {1, 0}});
@@ -67,6 +71,7 @@ void token::init() {
     token::builtins.insert({".", {2, 8}});
 
     token::control.insert("if");
+    token::control.insert("elsif");
     token::control.insert("else");
     token::control.insert("for");
     token::control.insert("while");

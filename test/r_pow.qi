@@ -1,0 +1,14 @@
+fn expo num (num n, num exponent) start 
+    if exponent == 0 start 
+        return 1
+    end
+    return n * expo(n, exponent -1)
+end
+
+fn main none () start
+    num base
+    in base 
+    num power
+    in power
+    out expo(base, power)
+end

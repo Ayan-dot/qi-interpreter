@@ -14,7 +14,7 @@ class executor {
 private:
     ast_node *tree;
     object *parent;
-    bool has_return;
+    bool has_return, has_continue, has_break;
     object *return_val;
 
 public:

@@ -1,7 +1,7 @@
 #include "fstream.h"
 
 fstream_node::fstream_node() {
-    val = '\0';
+    val = 0;
     next = nullptr;
 }
 
@@ -46,6 +46,7 @@ char fstream::next() const {
 void fstream::move() {
     if (file->next) {
         fstream_node *prev = file;
+        delete prev;
         file = file->next;
     } else
         err("interpreter error; no characters in stream");

@@ -20,6 +20,8 @@ public:
 
     static std::vector <token> subarray(const std::vector <token> &tokens, int start, int end);
 
+    bool is_fn(std::vector <token> &tokens);
+
     void print();
 };
 

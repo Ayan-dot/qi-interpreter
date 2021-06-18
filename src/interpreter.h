@@ -1,6 +1,7 @@
 #ifndef QI_INTERPRETER_INTERPRETER_H
 #define QI_INTERPRETER_INTERPRETER_H
 
+#include <chrono>
 #include <iostream>
 #include <string>
 #include <vector>
