@@ -271,7 +271,7 @@ object *object::push(object *o) {
             break;
         }
         default: {
-            err("objects can only be pushed to arr objects" + std::to_string(type));
+            err("objects can only be pushed to sequence objects" + std::to_string(type));
         }
     }
     return new object();

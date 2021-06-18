@@ -1,7 +1,12 @@
+fn square num (num a) start
+   a+=2
+   return a
+end
 fn main none () start
-   str x 
-   x = "huh"
-   num x 
-   x = 10
+   num y 
+   y = 10
+   out y
+   square(y)
+   out y
 end
 

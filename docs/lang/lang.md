@@ -183,7 +183,142 @@ identifier.method()
 - `clear()` - erases the calling `str`. 
 - `sort()` - sorts the calling `str` in alphabetical order. 
 
- 
+**Array methods: `arr`**
 
+- `len()` - returns the `num` value of the length of the array, indexed by element. 
+- `empty()`- returns a `bool` value evaluating to true if the array is empty (contains no elements).
+- `find(|str, num|)` - returns the `num` value of the index of the `str / num` argument found in the calling `arr` .  If the argument is not found, returns `-1`
+- `reverse()` - returns the reverse of the calling `arr`. 
+- `at(num)` - returns the element present at the `num` index passed in the calling `arr`. 
+- `last()`-  returns the element at the final index of the calling `arr`
+- `push(|str, num, arr, bool|)`- pushes the object in the parameter as an element to the calling `arr`. Indexes at final value in `arr`. 
+- `pop()` - erases the final character in the calling `str`. 
+- `sub(num, num, num)` - takes 3 `num` parameters corresponding with start index, end index, and step. Returns `arr` value of subarray corresponding to arguments. 
+- `clear()` - erases the calling `arr`. 
+- `sort()` - sorts the calling `arr` in alphanumeric order. Note that this only works on `arr` structures with constant element types. 
+- `fill(num, num, |str, num, arr, bool|)` - Takes 2 `num` parameters and 1 abstract parameter. Fills calling `arr` from start to end index with abstract argument. 
 
+**Queue methods: `queue`**
+
+- `len()` - returns the `num` value of the length of the queue, indexed by element. 
+- `empty()`- returns a `bool` value evaluating to true if the queue is empty (contains no elements).
+- `last()`-  returns the element at the end of the calling `queue`.
+- `next()` - returns the element at the front of the calling `queue`. 
+- `push(|str, num, arr, bool|)`- pushes the object in the parameter as an element to the calling `queue`. Indexes at the back of the `queue`. 
+- `pop()` - erases the front element in the calling `queue`. 
+- `clear()` - erases the calling `queue`. 
+
+**Stack methods: `stack`**
+
+- `len()` - returns the `num` value of the length of the stack, indexed by element. 
+- `empty()`- returns a `bool` value evaluating to true if the stack is empty (contains no elements).
+- `next()` - returns the element at the front of the calling `stack`. 
+- `push(|str, num, arr, bool|)`- pushes the object in the parameter as an element to the calling `stack`. Indexes at the top of the `stack`. 
+- `pop()` - erases the top element in the calling `stack`. 
+- `clear()` - erases the calling `stack`.
+
+<!--add set and map-->
+
+### 4. Program Model
+
+​	Qi programs are read by the interpreter as blocks. The fundamental structure of a program is critical to successfully compiling Qi files. As the interpreter parses through the source code, function definitions, control flow and even simple lines of code are broken down into blocks as the syntax tree is created. To make sure that the program is properly ordered, Qi enforces a logical model for programs to follow when programming. The sequential nature of any Qi program is as described: 
+
+```
+// start of file 
+
+// global variable definitions
+ num x_global 
+ x_global = 2
+ str y_global
+ y = "globalvar"
+ global variable definitions END
+
+// non-main function definitions
+ fn square num (num a) start 
+ 	return a**2
+ end
+// non-main function definitions END
+
+// main function definition
+ fn main none () start
+ 	num b
+ 	b = x_global
+ 	b = square(b)
+ 	out b
+ end
+// main function definition END
+
+// end of file
+
+```
+
+The global variables **must** be defined before function definitions are, and the **mandatory** main function must be declared after all functions and variables have been declared. 
+
+#### 1. Naming and Scoping 
+
+Both functions and variables need to be identified uniquely in a program so that the interpreter can execute code with references to these user-defined elements. Specifically, the names or identifiers for variables and functions must be stored somewhere in order to ensure that the names of functions correspond with the blocks of code they encompass, and to ensure that variable names continuously refer to the same value (within a specific scope). In order to maintain these name-object relationships, Qi has memory environments that handle scoping and naming. 
+
+​	The scope of a variable defines the locations in the code where it can be referenced and changed. For example, if the following code was presented:
+
+```
+num x_glob
+x_glob = 20
+fn square num (num a) start
+	return a**2
+end 
+fn main none () start
+	num y_glob
+	y_glob = 24
+	out x_glob
+end
+```
+
+The variable `x_glob` is global, it is defined outside any function block and is at the top of the code. As such the relationship between its identifier and its corresponding declaration is input to the global memory environment. The `y_glob` variable, on the other hand, is local to the `main` function and cannot be referenced outside of that scope. As instances of functions run and memory environments are initialized, memory management is far easier if the program maintains compliance to scope. 
+
+#### 2. Function Definitions
+
+A function definition defines a user-declared function; that is, a block of code independent of the driver function `main` in the program. This code can be re-used at the user's liberty and is bound to an identifier that can be referenced globally. A function definition simply defines the actions to be taken when a function is called; a function call then executes these actions during run-time. 
+
+The syntax for declaring a function is demonstrated below:
+
+```
+fn myfirstfunc num (num b, num c) start
+	if b == c start
+		return b
+	end
+	return b + c
+end
+```
+
+All functions are declared using the `fn` keyword. The word that directly succeeds this keyword acts as the name or identifier for the function in the global scope.
+
+A function must declare a return type or a value that is to be returned to the calling parent once execution is complete. In this case, the return type is specified as `num` , but the return type can be anything as long as the return calls inside the function correspond. 
+
+Function calls can contain parameters or values that are to be passed to functions. Parameters act as variables that are local to the body of the function, albeit sourced from outside it. These parameters can be used inside the function and changed therein, but changes are not reflected outside the scope; these parameters are effectively being passed by value only. Parameters are separated by the comma operator and read left to right. 
+
+Function calls in the program should simply be formatted as `function()`  with the braces containing any required parameters and arguments. 
+
+#### 3. Variable declarations
+
+Variable declarations in Qi are locations in the code where a name and value is assigned to an object to be used later in the program. Assignment of value to variables (both local and global) is done via the assignment `=` operator.  Prior to assigning value to the variable, the interpreter checks for typing issues and throws errors if the assignment in the declaration isn't valid. Syntax for variable declarations is shown below: 
+
+```
+str x 
+x = "qi language"
+num y
+y = 2021
+arr arr1
+```
+
+All the declarations here are valid declarations that can be situated inside any function or in the global scope of the program. The assignment of value must take place on a  line after the variable is initialized — the declaration of both simultaneously will throw an error. 
+
+### 5. Expressions:
+
+The Qi interpreter is required to go through the source code and build a tree with parent and child nodes that can be used to the model the structure of the code.  Expressions can include any of the following categories:
+
+- Identifiers / Literals
+- Calls
+- Operators
+
+The combination of these effectively creates the body of the Qi program, and dictates how actions are taken and what exactly the program does in essence. 
 
