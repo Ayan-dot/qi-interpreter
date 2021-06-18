@@ -1,3 +1,8 @@
+/*
+ * memory.h contains:
+ *   - Declarations for the memory
+ */
+
 #ifndef QI_INTERPRETER_MEMORY_H
 #define QI_INTERPRETER_MEMORY_H
 
@@ -8,6 +13,9 @@
 #include "object.h"
 #include "util.h"
 
+/// the memory object is functionally a symbol table lookup with
+/// utilities for adding, removing, and checking if certain symbols
+/// exist in the symbol table
 class memory {
 public:
     static memory *global;
@@ -31,6 +39,5 @@ public:
 
     memory();
 };
-
 
 #endif //QI_INTERPRETER_MEMORY_H

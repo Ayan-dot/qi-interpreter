@@ -1,5 +1,9 @@
 fn main none () start
-    for i of range(10) start
-        outl rand()
+    arr a
+    for i of range(5, 15) start
+        a.push(10-i)
     end
+    outl a
+    a.sort()
+    outl a
 end

@@ -1,6 +1,13 @@
+/*
+ * object.h contains:
+ *   - Declarations for the object class
+ *   - Object hash and object comparator
+ *   - Function parameter class
+ *   - Object types as enumerators
+ */
+
 #ifndef QI_INTERPRETER_OBJECT_H
 #define QI_INTERPRETER_OBJECT_H
-
 
 #include <algorithm>
 #include <cmath>
@@ -17,6 +24,7 @@
 #include "ast_node.h"
 #include "util.h"
 
+/// the different object types
 enum o_type {
     o_none,
     o_fn,
@@ -30,6 +38,7 @@ enum o_type {
     o_stack
 };
 
+/// function parameter types
 class f_param {
 public:
     o_type type;
@@ -44,16 +53,19 @@ public:
 
 class object;
 
+/// obj_equals used in unordered_set/map
 struct obj_equals {
 public:
     bool operator()(object *o1, object *o2) const;
 };
 
+/// obj_hash creates hash for the object
 struct obj_hash {
 public:
     std::size_t operator()(object *o) const;
 };
 
+/// the object that everything in the language is constructed from
 class object {
 public:
     std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>, std::unordered_set<object *, obj_hash, obj_equals>, std::unordered_map<object *, object *, obj_hash, obj_equals>> store;
@@ -194,6 +206,5 @@ public:
 
     std::string str();
 };
-
 
 #endif //QI_INTERPRETER_OBJECT_H
