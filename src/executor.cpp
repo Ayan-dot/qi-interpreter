@@ -146,7 +146,7 @@ object *executor::run(ast_node *u) {
                 object *target = run(&(u->children[0]));
                 std::string method = u->children[1].val.val;
                 if (method == "push") {
-                    if (u->children[1].children.size() == 0)
+                    if (u->children[1].children.size() != 1)
                         err("push requires 1 argument", u->children[1].val.line);
                     object *arg = run(&(u->children[1].children[0]));
                     return target->push(arg);
@@ -154,14 +154,61 @@ object *executor::run(ast_node *u) {
                     return target->pop();
                 else if (method == "len")
                     return target->len();
-                else if (method == "reverse")
+                else if (method == "empty")
+                    return target->empty();
+                else if (method == "find") {
+                    if (u->children[1].children.size() != 1)
+                        err("find requires 1 argument", u->children[1].val.line);
+                    object *arg = run(&(u->children[1].children[0]));
+                    return target->find(arg);
+                } else if (method == "reverse")
                     return target->reverse();
-                else if (method == "at") {
-                    if (u->children[1].children.size() == 0)
+                else if (method == "fill") {
+                    if (u->children[1].children.size() != 3)
+                        err("fill requires 3 arguments", u->children[1].val.line);
+                    object *arg1 = run(&(u->children[1].children[0]));
+                    object *arg2 = run(&(u->children[1].children[1]));
+                    object *arg3 = run(&(u->children[1].children[2]));
+                    return target->fill(arg1, arg2, arg3);
+                } else if (method == "at") {
+                    if (u->children[1].children.size() != 1)
                         err("at requires 1 argument", u->children[1].val.line);
                     object *arg = run(&(u->children[1].children[0]));
                     return target->at(arg);
-                } else
+                } else if (method == "next")
+                    return target->next();
+                else if (method == "last")
+                    return target->last();
+                else if (method == "sub") {
+                    switch (u->children[1].children.size()) {
+                        case 0: {
+                            return target->sub();
+                        }
+                        case 1: {
+                            object *arg = run(&(u->children[1].children[0]));
+                            return target->sub(arg);
+                        }
+                        case 2: {
+                            object *arg1 = run(&(u->children[1].children[0]));
+                            object *arg2 = run(&(u->children[1].children[1]));
+                            return target->sub(arg1, arg2);
+                        }
+                        case 3: {
+                            object *arg1 = run(&(u->children[1].children[0]));
+                            object *arg2 = run(&(u->children[1].children[1]));
+                            object *arg3 = run(&(u->children[1].children[2]));
+                            return target->sub(arg1, arg2, arg3);
+                        }
+                        default: {
+                            err("sub requires 0 to 3 arguments");
+                            return new object();
+                        }
+                    }
+                } else if (method == "clear")
+                    return target->clear();
+                else if (method == "sort")
+                    return target->sort();
+                else
                     err("unknown method \"" + method + "\"", u->val.line);
             } else if (u->val.val == "in") {
                 object *var = run(&(u->children[0]));
@@ -197,6 +244,8 @@ object *executor::run(ast_node *u) {
             for (ast_node &v : u->children)
                 sub.push_back(run(&v));
             if (u->val.val == "out")
+                std::cout << sub[0]->str();
+            else if (u->val.val == "outl")
                 std::cout << sub[0]->str() << std::endl;
             else if (u->val.val == "=")
                 return sub[0]->equal(sub[1]);

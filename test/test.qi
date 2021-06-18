@@ -1,14 +1,25 @@
-fn expo num (num n, num exponent) start 
-    if exponent == 0 start 
-        return 1
-    end
-    return n * expo(n, exponent -1)
-end
-
 fn main none () start
-    num base
-    in base 
-    num power
-    in power
-    out expo(base, power)
+    arr a
+    arr b
+    num n
+    n = 3
+
+    for i of range(n) start
+        b.push(-1)
+    end
+
+    for i of range(n) start
+        a.push(b)
+        b.clear()
+    end
+
+    b.push(10)
+    a.at(0).at(0) = 3
+    a.at(1).push(12)
+    a.at(1).push(13)
+    a.at(1).push(14)
+    a.at(1).push(5**2)
+    a.at(2).push(15)
+    outl b
+    out a
 end

@@ -2,6 +2,7 @@
 #define QI_INTERPRETER_OBJECT_H
 
 
+#include <algorithm>
 #include <cmath>
 #include <queue>
 #include <stack>
@@ -10,6 +11,7 @@
 #include <variant>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "ast_node.h"
 #include "util.h"
@@ -39,9 +41,21 @@ public:
     std::string str();
 };
 
+class object;
+
+struct obj_equals {
+public:
+    bool operator()(object *o1, object *o2) const;
+};
+
+struct obj_hash {
+public:
+    std::size_t operator()(object *o) const;
+};
+
 class object {
 public:
-    std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>> store;
+    std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>, std::unordered_set<object *, obj_hash, obj_equals>, std::unordered_map<object *, object *, obj_hash, obj_equals>> store;
     o_type type;
 
     std::vector <f_param> f_params;
@@ -57,7 +71,7 @@ public:
     object(o_type _type);
 
     void
-    set(std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>> _store);
+    set(std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>, std::unordered_set<object *, obj_hash, obj_equals>, std::unordered_map<object *, object *, obj_hash, obj_equals>> _store);
 
     void set_params(std::vector <f_param> &_f_params);
 
@@ -71,9 +85,31 @@ public:
 
     object *len();
 
+    object *empty();
+
+    object *find(object *o);
+
     object *reverse();
 
+    object *fill(object *start, object *end, object *o);
+
     object *at(object *index);
+
+    object *next();
+
+    object *last();
+
+    object *sub();
+
+    object *sub(object *start);
+
+    object *sub(object *start, object *end);
+
+    object *sub(object *start, object *end, object *range);
+
+    object *clear();
+
+    object *sort();
 
     object *add(object *o);
 

@@ -28,7 +28,7 @@ void interpreter::declare_obj(std::vector <token> obj, bool to_global) {
     if (!memory::valid(obj.back().val))
         err("cannot redeclare existing symbol \"" + obj.back().val + "\"", obj.back().line);
     o_type t_obj = object::str_o_type(obj.front().val);
-    std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>> store;
+    std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>, std::unordered_set<object *, obj_hash, obj_equals>, std::unordered_map<object *, object *, obj_hash, obj_equals>> store;
     if (obj.front().val == "num")
         store = (double) 0;
     else if (obj.front().val == "bool")
@@ -37,6 +37,14 @@ void interpreter::declare_obj(std::vector <token> obj, bool to_global) {
         store = "";
     else if (obj.front().val == "arr")
         store = std::vector<object *>();
+    else if (obj.front().val == "queue")
+        store = std::queue<object *>();
+    else if (obj.front().val == "stack")
+        store = std::stack<object *>();
+    else if (obj.front().val == "set")
+        store = std::unordered_set<object *, obj_hash, obj_equals>();
+    else if (obj.front().val == "map")
+        store = std::unordered_map<object *, object *, obj_hash, obj_equals>();
     else
         err("unimplemented var type");
 
@@ -121,6 +129,7 @@ void interpreter::execute() {
     process->init();
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    std::cout << "\n\n";
     out("execution complete in " + std::to_string(duration.count()) + " microseconds");
     memory::pop();
 }

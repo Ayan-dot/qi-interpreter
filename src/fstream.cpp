@@ -1,7 +1,7 @@
 #include "fstream.h"
 
 fstream_node::fstream_node() {
-    val = '\0';
+    val = 0;
     next = nullptr;
 }
 
@@ -36,11 +36,11 @@ fstream::fstream(std::string file_name) {
 }
 
 char fstream::curr() const {
-    return file ? file->val : '\0';
+    return file ? file->val : 0;
 }
 
 char fstream::next() const {
-    return file->next ? file->next->val : '\0';
+    return file->next ? file->next->val : 0;
 }
 
 void fstream::move() {

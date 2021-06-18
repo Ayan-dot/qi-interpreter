@@ -60,8 +60,43 @@ f_param::f_param(o_type _type, std::string _symbol) {
     symbol = _symbol;
 }
 
+
 std::string f_param::str() {
     return object::o_type_str(type) + " " + symbol;
+}
+
+bool obj_equals::operator()(object *o1, object *o2) const {
+    if (o1->type != o2->type)
+        return false;
+    switch (o1->type) {
+        case o_num: {
+            return std::get<double>(o1->store) == std::get<double>(o2->store);
+        }
+        case o_str: {
+            return std::get<std::string>(o1->store) == std::get<std::string>(o2->store);
+        }
+        default: {
+            err("set/map not supported for non integral and string types");
+            break;
+        }
+    }
+    return false;
+}
+
+std::size_t obj_hash::operator()(object *o) const {
+    switch (o->type) {
+        case o_num: {
+            return std::hash<double>()(std::get<double>(o->store));
+        }
+        case o_str: {
+            return std::hash<std::string>()(std::get<std::string>(o->store));
+        }
+        default: {
+            err("set/map not supported for non integral and string types");
+            break;
+        }
+    }
+    return 0;
 }
 
 object::object() {
@@ -122,12 +157,38 @@ bool object::is_int() {
 }
 
 object *object::push(object *o) {
-    if (type == o_arr) {
-        object *copy = new object(o->type);
-        copy->set(o->store);
-        std::get < std::vector < object * >> (store).push_back(copy);
-    } else
-        err("objects can only be pushed to arr objects");
+    switch (type) {
+        case o_arr: {
+            object *copy = new object(o->type);
+            copy->equal(o);
+//            for (auto t1 : std::get < std::vector < object * >> (copy->store))
+//                out(t1->str());
+            std::get < std::vector < object * >> (store).push_back(copy);
+            break;
+        }
+        case o_queue: {
+            object *copy = new object(o->type);
+            copy->equal(o);
+            std::get < std::queue < object * >> (store).push(copy);
+            break;
+        }
+        case o_stack: {
+            object *copy = new object(o->type);
+            copy->equal(o);
+            std::get < std::stack < object * >> (store).push(copy);
+            break;
+        }
+        case o_set: {
+            object *copy = new object(o->type);
+            copy->equal(o);
+            std::get < std::unordered_set < object * , obj_hash, obj_equals >> (store)
+                    .insert(copy);
+            break;
+        }
+        default: {
+            err("objects can only be pushed to arr objects" + std::to_string(type));
+        }
+    }
     return new object();
 }
 
@@ -140,6 +201,12 @@ object *object::pop() {
         case o_arr: {
             std::get < std::vector < object * >> (store).pop_back();
             break;
+        }
+        case o_queue: {
+            std::get < std::stack < object * >> (store).pop();
+        }
+        case o_stack: {
+            std::get < std::stack < object * >> (store).pop();
         }
         default: {
             err("pop() is not supported on this object");
@@ -161,11 +228,69 @@ object *object::len() {
             ret->set((double) (std::get < std::vector < object * >> (store).size()));
             return ret;
         }
+        case o_queue: {
+            object *ret = new object(o_num);
+            ret->set((double) (std::get < std::queue < object * >> (store).size()));
+            return ret;
+        }
+        case o_stack: {
+            object *ret = new object(o_num);
+            ret->set((double) (std::get < std::stack < object * >> (store).size()));
+            return ret;
+        }
         default: {
             err("len() is not supported on this object");
             return new object();
         }
     }
+}
+
+object *object::empty() {
+    object *ret = new object(o_bool);
+    ret->set(std::get<double>(len()->store) == 0);
+    return ret;
+}
+
+object *object::find(object *o) {
+    object *ret = new object(o_num);
+    switch (type) {
+        case o_str: {
+            if (o->type != o_str)
+                err("only str can be searched for in str");
+            std::size_t pos = std::get<std::string>(store).find(std::get<std::string>(o->store));
+            ret->set((double) pos);
+            break;
+        }
+        case o_arr: {
+            double size = std::get<double>(len()->store);
+            ret->set((double) -1);
+            for (int i = 0; i < size; ++i) {
+                if (std::get<bool>(std::get < std::vector < object * >> (store)[i]->equals(o)->store)) {
+                    ret->set((double) i);
+                    break;
+                }
+            }
+            break;
+        }
+        case o_set: {
+            object *r1 = new object(o_bool);
+            r1->set((std::get < std::unordered_set < object * , obj_hash, obj_equals >> (store)).find(o) !=
+                            std::get < std::unordered_set < object * , obj_hash, obj_equals >> (store).end());
+            return r1;
+        }
+        case o_map: {
+            object *r2 = new object(o_bool);
+            r2->set((std::get < std::unordered_map < object * , object *, obj_hash, obj_equals >> (store)).find(o) !=
+                            std::get < std::unordered_map < object * , object * , obj_hash, obj_equals
+                            >> (store).end());
+            return r2;
+        }
+        default: {
+            err("find() is only supported for str, arr and set");
+            break;
+        }
+    }
+    return ret;
 }
 
 object *object::reverse() {
@@ -187,12 +312,31 @@ object *object::reverse() {
     return new object();
 }
 
+object *object::fill(object *start, object *end, object *o) {
+    if (type != o_arr)
+        err("fill() may only be called on type arr");
+    else if (!(start->is_int() && end->is_int()))
+        err("fill() start and end must be integers");
+    int i = (int) std::get<double>(start->store);
+    int j = (int) std::get<double>(end->store);
+    int size = std::get<double>(len()->store);
+    if (!(0 <= i && i < size && 0 <= j && j < size))
+        err("fill() out of bounds");
+    while (i <= j) {
+        object *curr = std::get < std::vector < object * >> (store)[i];
+        curr->type = o->type;
+        curr->equal(o);
+        i++;
+    }
+    return new object();
+}
+
 object *object::at(object *index) {
-    if (!index->is_int())
-        err("index must be integer");
-    int i = (int) std::get<double>(index->store);
     switch (type) {
         case o_str: {
+            if (!index->is_int())
+                err("index must be integer");
+            int i = (int) std::get<double>(index->store);
             if (!(i >= 0 && i < std::get<std::string>(store).size()))
                 err("str index out of bounds");
             object *ret = new object(o_str);
@@ -200,15 +344,75 @@ object *object::at(object *index) {
             return ret;
         }
         case o_arr: {
+            if (!index->is_int())
+                err("index must be integer");
+            int i = (int) std::get<double>(index->store);
             if (!(i >= 0 && i < std::get < std::vector < object * >> (store).size()))
                 err("arr index out of bounds");
             return std::get < std::vector < object * >> (store)[i];
+        }
+        case o_map: {
+            if (std::get < std::unordered_map < object * , object *, obj_hash, obj_equals >> (store).find(index) !=
+                    std::get < std::unordered_map < object *, object *, obj_hash, obj_equals >> (store).end())
+                return std::get < std::unordered_map < object * , object *, obj_hash, obj_equals >> (store)[index];
+            object *val = new object();
+            std::get < std::unordered_map < object * , object *, obj_hash, obj_equals >> (
+                    store)[index] = val;
+            return val;
         }
         default: {
             err("at() is not supported on this object");
             return new object();
         }
     }
+}
+
+object *object::next() {
+    switch (type) {
+        case o_queue: {
+            if (!std::get<bool>(empty()->store))
+                err("queue is empty");
+            return std::get < std::queue < object * >> (store).front();
+            break;
+        }
+        case o_stack: {
+            if (!std::get<bool>(empty()->store))
+                err("stack is empty");
+            return std::get < std::stack < object * >> (store).top();
+            break;
+        }
+        default: {
+            err("next() is not supported on this object");
+            return new object();
+        }
+    }
+}
+
+object *object::last() {
+    switch (type) {
+        case o_str: {
+            if (std::get<std::string>(store).empty())
+                err("str is empty");
+            object *ret = new object(o_str);
+            ret->set(std::to_string(std::get<std::string>(store).back()));
+            return ret;
+        }
+        case o_arr: {
+            if (std::get < std::vector < object * >> (store).empty())
+                err("arr is empty");
+            return std::get < std::vector < object * >> (store).back();
+        }
+        case o_queue: {
+            if (std::get < std::queue < object * >> (store).empty())
+                err("queue is empty");
+            return std::get < std::queue < object * >> (store).back();
+        }
+        default: {
+            err("last() is not supported on this object");
+            break;
+        }
+    }
+    return new object();
 }
 
 object *object::add(object *o) {
@@ -240,6 +444,126 @@ object *object::add(object *o) {
         err("+ not supported here");
         return new object();
     }
+}
+
+object *object::sub() {
+    object *ret = new object(type);
+    ret->equal(this);
+    return ret;
+}
+
+object *object::sub(object *start) {
+    object *end = new object(o_num), *step = new object(o_num);
+    end->set(std::get<double>(len()->store));
+    step->set((double) 1);
+    return sub(start, end, step);
+}
+
+object *object::sub(object *start, object *end) {
+    object *step = new object(o_num);
+    step->set((double) 1);
+    return sub(start, end, step);
+}
+
+object *object::sub(object *start, object *end, object *step) {
+    if (!(start->is_int() && end->is_int() && step->is_int()))
+        err("sub() must have integer parameters");
+
+    int i = (int) std::get<double>(start->store);
+    int j = (int) std::get<double>(end->store);
+    int k = (int) std::get<double>(step->store);
+    if (k < 1)
+        err("sub() step must be >= 1");
+
+    switch (type) {
+        case o_str: {
+            int size = std::get<double>(len()->store);
+            if (!(0 <= i && i < size && 0 <= j && j <= size))
+                err("sub() must parameters out of bounds");
+            object *ret = new object(o_str);
+            std::string tmp;
+            for (; i < j; i += k)
+                tmp.push_back(std::get<std::string>(store)[i]);
+            ret->set(tmp);
+            return ret;
+        }
+        case o_arr: {
+            int size = std::get<double>(len()->store);
+            if (!(0 <= i && i < size && 0 <= j && j <= size))
+                err("sub() must parameters out of bounds");
+            object *ret = new object(o_arr);
+            std::vector < object * > tmp;
+            for (; i < j; i += k)
+                tmp.push_back(std::get < std::vector < object * >> (store)[i]);
+            ret->set(tmp);
+            return ret;
+        }
+        default: {
+            err("sub() not supported on this object");
+            return new object();
+        }
+    }
+}
+
+object *object::clear() {
+    switch (type) {
+        case o_str: {
+            std::get<std::string>(store).clear();
+            break;
+        }
+        case o_arr: {
+            std::get < std::vector < object * >> (store).clear();
+            break;
+        }
+        case o_queue: {
+            while (!std::get < std::queue < object * >> (store).empty())
+                std::get < std::queue < object * >> (store).pop();
+            break;
+        }
+        case o_stack: {
+            while (!std::get < std::stack < object * >> (store).empty())
+                std::get < std::stack < object * >> (store).pop();
+            break;
+        }
+        case o_set: {
+            std::get < std::unordered_set < object * , obj_hash, obj_equals >> (store).clear();
+            break;
+        }
+        case o_map: {
+            std::get < std::unordered_map < object * , object *, obj_hash, obj_equals >> (store).clear();
+            break;
+        }
+        default: {
+            err("clear() not supported for this object");
+            break;
+        }
+    }
+    return new object();
+}
+
+bool compare_obj(object *a, object *b) {
+    return std::get<bool>(a->less_than(b)->store);
+}
+
+object *object::sort() {
+    switch (type) {
+        case o_str: {
+            std::sort(std::get<std::string>(store).begin(),
+                      std::get<std::string>(store).end());
+            break;
+        }
+        case o_arr: {
+            std::sort(std::get < std::vector < object * >> (store).begin(),
+                      std::get < std::vector < object * >> (store).end(),
+                      compare_obj);
+            break;
+        }
+        default: {
+            err("sort() not supported on this object");
+            break;
+        }
+    }
+    return new object();
 }
 
 object *object::subtract(object *o) {
@@ -522,11 +846,29 @@ object *object::b_left_shift_equal(object *o) {
 
 object *object::equal(object *o) {
     if (type == o_bool)
-        store.swap(o->to_bool()->store);
+        store = o->to_bool()->store;
     else {
-        if (type != o->type || type == o_fn)
+        if (type == o_none)
+            type = o->type;
+        else if (type != o->type || type == o_fn)
             err("cannot assign differently typed variables");
-        store.swap(o->store);
+
+        switch (type) {
+            case o_arr: {
+                store = std::vector<object *>();
+                object *obj;
+                for (int i = 0; i < std::get < std::vector < object * >> (o->store).size(); ++i) {
+                    obj = new object();
+                    obj->equal(std::get < std::vector < object * >> (o->store)[i]);
+                    std::get < std::vector < object * >> (store).push_back(obj);
+                }
+                break;
+            }
+            default: {
+                store = o->store;
+                break;
+            }
+        }
     }
     return new object();
 }
@@ -572,6 +914,6 @@ object *object::_or(object *o) {
 }
 
 void object::set(
-        std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>> _store) {
-    store.swap(_store);
+        std::variant<double, std::string, bool, std::vector<object *>, std::queue<object *>, std::stack<object *>, std::unordered_set<object *, obj_hash, obj_equals>, std::unordered_map<object *, object *, obj_hash, obj_equals>> _store) {
+    store = _store;
 }
