@@ -81,6 +81,46 @@ std::string f_param::str() {
     return object::o_type_str(type) + " " + symbol;
 }
 
+void quick_sortnum(std::vector<object*> arr, int low, int high) {
+  if (low < high) {
+    int l = low, r = high;
+    object * pivot = new object(o_num);
+    pivot->set(std::get<double>(arr[l]->store));
+        
+    while (l < r) {
+      while (std::get<double>(arr[r]->store) >= std::get<double>(pivot->store) && l < r)
+        --r;
+      arr[l]->set(std::get<double>(arr[r]->store));
+      while (std::get<double>(arr[l]->store) <= std::get<double>(pivot->store) && l < r)
+        ++l;
+      arr[r]->set(std::get<double>(arr[l]->store));
+    }
+    arr[l]->set(std::get<double>(pivot->store));
+    quick_sortnum(arr, low, l - 1);
+    quick_sortnum(arr, r + 1, high);
+  }
+}
+void quick_sortstr(std::vector<object*> arr, int low, int high) {
+  if (low < high) {
+    int l = low, r = high;
+    object * pivot = new object(o_str);
+    pivot->set(std::get<std::string>(arr[l]->store));
+        
+    while (l < r) {
+      while (std::get<std::string>(arr[r]->store) >= std::get<std::string>(pivot->store) && l < r)
+        --r;
+      arr[l]->set(std::get<std::string>(arr[r]->store));
+      while (std::get<std::string>(arr[l]->store) <= std::get<std::string>(pivot->store) && l < r)
+        ++l;
+      arr[r]->set(std::get<std::string>(arr[l]->store));
+    }
+    arr[l]->set(std::get<std::string>(pivot->store));
+    quick_sortstr(arr, low, l - 1);
+    quick_sortstr(arr, r + 1, high);
+  }
+}
+
+
 /// checks if the two given objects are equal
 /// \param o1: the first object
 /// \param o2: the second object
@@ -619,14 +659,24 @@ bool compare_obj(object *a, object *b) {
 object *object::sort() {
     switch (type) {
         case o_str: {
-            std::sort(std::get<std::string>(store).begin(),
-                      std::get<std::string>(store).end());
+            std::sort(std::get<std::string>(store).begin(),std::get<std::string>(store).end());
             break;
         }
         case o_arr: {
-            std::sort(std::get < std::vector < object * >> (store).begin(),
-                      std::get < std::vector < object * >> (store).end(),
-                      compare_obj);
+            switch(std::get<std::vector<object*>>(store)[0]->type) {
+                case o_num : {
+                    quick_sortnum(std::get<std::vector<object*>>(store), 0, std::get<std::vector<object*>>(store).size()-1);
+                    break;
+                }
+                case o_str : {
+                    quick_sortstr(std::get<std::vector<object*>>(store), 0, std::get<std::vector<object*>>(store).size()-1);
+                    break;
+                }
+                default : {
+                err("sort() not supported on non integer or string arrays");
+                break;
+                }
+            }        
             break;
         }
         default: {
