@@ -1,5 +1,12 @@
-fn main none () start
-    for fi of range(5) start
-        out fi + " "
-    end
+fn square num (num a) start
+   a+=2
+   return a
 end
+fn main none () start
+   num y 
+   y = 10
+   out y
+   square(y)
+   out y
+end
+
