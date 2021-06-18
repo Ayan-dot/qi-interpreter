@@ -2,7 +2,7 @@
 
 ## About
 
-A fully-featured interpreter written in C++ for our custom Qi programming language. More details about the language and supported features will be posted here soon.
+A fully-featured interpreter written in C++ for our custom Qi programming language. For more details about the language and supported features, checkout our [documentation](./docs).
 
 ## Running locally
 

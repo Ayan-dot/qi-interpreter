@@ -1,7 +1,7 @@
 fn main none () start
     arr fib
     num n
-    out "Finds nth Fibonacci series number. Enter n:"
+    out "Finds nth Fibonacci series number. Enter n: "
     in n
     if n >= 0 start
         fib.push(0)
@@ -9,8 +9,8 @@ fn main none () start
         for i of range(2, n+1) start
             fib.push(fib.at(i-1) + fib.at(i-2))
         end
-        out "The " + n + "th Fibonacci number is " + fib.at(n) + "."
-        out "The Fibonacci series up to " + n + " is: " + fib
+        outl "The " + n + "th Fibonacci number is " + fib.at(n) + "."
+        outl "The Fibonacci series up to " + n + " is: " + fib
     end
     else start
         out "n must be >= 0"
