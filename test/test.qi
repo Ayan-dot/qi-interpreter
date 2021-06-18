@@ -1,19 +1,6 @@
 fn main none () start
-    arr a
-    arr b
-    num n
-
-    out "enter 2d square array len: "
-    in n
-
-    for i of range(n) start
-        b.push(0)
-    end
-
-    for i of range(n) start
-        a.push(b)
-    end
-
-    a.at(0).at(0) = 10
-    out a
+   str x 
+   x = "ayan"
+   x.sort()
+   out x
 end
