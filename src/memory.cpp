@@ -12,7 +12,8 @@ bool memory::valid(std::string id) {
     return !has(id) && id != "main" &&
            token::builtins.find(id) == token::builtins.end() &&
            token::vars.find(id) == token::vars.end() &&
-           token::control.find(id) == token::control.end();
+           token::control.find(id) == token::control.end() &&
+           token::methods.find(id) == token::methods.end();
 }
 
 void memory::add(std::string id, object *obj, bool to_global) {

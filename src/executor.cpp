@@ -345,6 +345,24 @@ object *executor::run(ast_node *u) {
                 memory::pop();
 
                 return ret;
+            } else if (token::methods.find(u->val.val) != token::methods.end()) {
+                if (u->val.val == "floor") {
+                    if (u->children.size() != 1)
+                        err("floor requires 1 argument", u->val.line);
+                    return run(&(u->children[0]))->floor();
+                } else if (u->val.val == "ceil") {
+                    if (u->children.size() != 1)
+                        err("ceil requires 1 argument", u->val.line);
+                    return run(&(u->children[0]))->ceil();
+                } else if (u->val.val == "round") {
+                    if (u->children.size() != 2)
+                        err("round requires 2 arguments", u->val.line);
+                    return run(&(u->children[0]))->round(run(&(u->children[1])));
+                } else if (u->val.val == "rand") {
+                    if (u->children.size() != 0)
+                        err("rand takes no arguments", u->val.line);
+                    return object::rand();
+                }
             } else
                 err("symbol \"" + u->val.val + "\" is undefined", u->val.line);
         } else if (u->val.type == t_num) {

@@ -24,7 +24,7 @@ enum t_type {
 class token {
 public:
     static std::unordered_map <std::string, std::pair<int, int>> builtins;
-    static std::unordered_set <std::string> control, vars;
+    static std::unordered_set <std::string> control, vars, methods;
     static int pre_none;
 
     std::string val;
