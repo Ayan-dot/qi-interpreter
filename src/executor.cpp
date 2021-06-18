@@ -377,7 +377,8 @@ object *executor::run(ast_node *u) {
 
                 memory::push();
                 for (int i = 0; i < obj->f_params.size(); ++i) {
-                    object *param = sub[i];
+                    object *param = new object();
+                    param->equal(sub[i]);
                     if (param->type != obj->f_params[i].type)
                         err("parameter types don't match", u->children[i].val.line);
                     memory::add(obj->f_params[i].symbol, param);
