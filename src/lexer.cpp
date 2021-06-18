@@ -53,15 +53,13 @@ std::string lexer::scan_str(const char &delim) {
     while (stream.next() != 0) {
         char prev = stream.curr();
         stream.move();
-        if (stream.curr() == delim && prev != '\\') // condition for no delim
+        // allow escaped delimeters to be part of the string
+        if (stream.curr() == delim && prev != '\\')
             return ret;
-        // delimter code added
-        else if(stream.curr() == delim){
+        else if (stream.curr() == delim) {
             ret.pop_back();
             ret.push_back(stream.curr());
-            }
-        // delimiter code
-        else if (prev == '\\' && stream.curr() == 'n') {
+        } else if (prev == '\\' && stream.curr() == 'n') {
             ret.pop_back();
             ret.push_back('\n');
         } else ret.push_back(stream.curr());
