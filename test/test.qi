@@ -1,9 +1,5 @@
 fn main none () start
-    arr a
-    for i of range(5, 15) start
-        a.push(10-i)
+    for fi of range(5) start
+        out fi + " "
     end
-    outl a
-    a.sort()
-    outl a
 end
