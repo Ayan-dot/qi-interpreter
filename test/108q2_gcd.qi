@@ -3,7 +3,6 @@ fn gcd num (num x, num y) start
         return x
     end 
     else start
-        $out x%y
         return gcd(y, x%y)
     end
 end
@@ -14,5 +13,4 @@ fn main none () start
     num num2 
     in num2 
     out gcd(num1, num2)
-
 end
