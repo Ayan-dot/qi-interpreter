@@ -58,8 +58,8 @@ char fstream::next() const {
 void fstream::move() {
     if (file->next) {
         fstream_node *prev = file;
-        delete prev;
         file = file->next;
+        delete prev;
     } else
         err("interpreter error; no characters in stream");
 }

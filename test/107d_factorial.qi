@@ -6,5 +6,8 @@ fn f num (num n) start
 end
 
 fn main none () start
-    out f(10)
+    num fact
+    in fact
+
+    outl fact + "! = " + f(fact)
 end
