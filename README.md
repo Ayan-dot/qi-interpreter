@@ -1,5 +1,7 @@
 # qi-interpreter
 
+![test result](https://github.com/malav-mehta/qi-interpreter/actions/workflows/tests.yml/badge.svg)
+
 ## About
 
 This repository contains a complete interpreter for Qi, written in C++. Qi is a small imperative programming language with a simple syntax.
