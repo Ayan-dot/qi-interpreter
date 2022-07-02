@@ -21,6 +21,7 @@ COMMAND = -o
 
 compile:
 	@echo [info] compiling...
+	@mkdir -p ${BUILD}
 	@${CXX} ${FLAGS} ${SOURCE}/*.cpp ${COMMAND} ${BUILD}/${OUTPUT}
 	@echo [info] compiled to ${BUILD}/${OUTPUT}
 
