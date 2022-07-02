@@ -114,6 +114,14 @@ Finally, you can run the executable. To interpret code located at `path/to/file.
 ./qi /path/to/file.qi
 ```
 
+### Testing
+
+To test the program, run the following command from the root directory:
+
+```bash
+make test
+```
+
 ## Tech stack
 
 - C++
