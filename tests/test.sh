@@ -42,4 +42,8 @@ done
 
 cd ".."
 echo -e "$BLUE[info]$NC ran all tests"
-exit failed_tests
+if [[ $failed_tests == 0 ]]; then
+    exit 0
+else
+    exit 1
+fi
