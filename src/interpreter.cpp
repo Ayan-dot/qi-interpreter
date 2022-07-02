@@ -156,7 +156,5 @@ void interpreter::execute() {
     auto stop = std::chrono::high_resolution_clock::now();
     // times the runtime
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << "\n\n";
-    out("execution complete in " + std::to_string(duration.count()) + " microseconds");
     memory::pop();
 }

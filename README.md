@@ -10,7 +10,7 @@ Qi supports common programming concepts including weak static typing, variable d
 
 ### Examples
 
-A complete range of example programs written in Qi can be viewed in the [test folder](./test).
+A complete range of example programs written in Qi can be viewed in the [examples folder](./examples).
 
 ```bash
 $ hello_world.qi
@@ -92,7 +92,7 @@ end
 To try out Qi yourself, clone this repository first:
 
 ```bash
-git clone
+git clone https://github.com/malav-mehta/qi-interpreter.git
 ```
 
 Compile the project using the Makefile:
@@ -113,3 +113,10 @@ Finally, you can run the executable. To interpret code located at `path/to/file.
 ```shell
 ./qi /path/to/file.qi
 ```
+
+## Tech stack
+
+- C++
+- Bash
+
+If you find any bugs or have any questions, feel free to email us: [malavhmehta@outlook.com](mailto:malavhmehta@outlook.com).

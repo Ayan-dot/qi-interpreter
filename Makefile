@@ -1,7 +1,7 @@
 # Usage:
 #  - make			compile to build dir
 #  - make clean		clear build dir (delete executables)
-#  - make test		test with target as arg
+#  - make test		test program
 
 .PHONY = all compile clean test
 
@@ -30,5 +30,4 @@ clean:
 	@echo [info] build dir cleaned
 
 test:
-	@echo [info] testing program with target ${TARGET}
-	@${TARGET}
+	@bash ./tests/test.sh
