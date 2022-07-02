@@ -9,6 +9,7 @@ QI="../../build/qi"
 
 cd "$TEST_FOLDER_NAME"
 FOLDER_NAMES=$(ls -1 -d */)
+failed_tests=0
 
 for folder_name in $FOLDER_NAMES
 do
@@ -27,6 +28,7 @@ do
             echo "actual contents ($folder_name$test_number-test):"
             cat "$test_number-test" || exit 0
             passed_test_count=$(( $passed_test_count - 1 ))
+            failed_tests=$(( $failed_tests + 1 ))
         fi
         test_number=$((test_number + 1))
     done
@@ -40,4 +42,4 @@ done
 
 cd ".."
 echo -e "$BLUE[info]$NC ran all tests"
-exit 0
+exit failed_tests
