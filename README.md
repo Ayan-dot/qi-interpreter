@@ -1,21 +1,21 @@
-# qi-interpreter
+# qlang
 
-![test result](https://github.com/malav-mehta/qi-interpreter/actions/workflows/tests.yml/badge.svg)
+![test result](https://github.com/malav-mehta/qlang/actions/workflows/tests.yml/badge.svg)
 
 ## About
 
-This repository contains a complete interpreter for Qi, written in C++. Qi is a small imperative programming language with a simple syntax.
+This repository contains a complete interpreter for `qlang`, written in C++. `qlang` is a small imperative programming language with a simple syntax.
 
 ### Grammar
 
-Qi supports common programming concepts including weak static typing, variable declaration, function calling, conditional statements, loops and recursion. For a more detailed overview, checkout [grammar.md](./grammar.md).
+`qlang` supports common programming concepts including weak static typing, variable declaration, function calling, conditional statements, loops and recursion. For a more detailed overview, checkout [grammar.md](./grammar.md).
 
 ### Examples
 
-A complete range of example programs written in Qi can be viewed in the [examples folder](./examples).
+A complete range of example programs written in `qlang` can be viewed in the [examples folder](./examples).
 
 ```bash
-$ hello_world.qi
+$ cat hello_world.q
 
 fn main none () start
     out "Hello, World!"
@@ -23,7 +23,7 @@ end
 ```
 
 ```bash
-$ gcd.qi
+$ cat gcd.q
 
 fn gcd num (num x, num y) start
     if y == 0 start
@@ -45,7 +45,7 @@ end
 ```
 
 ```bash
-$ fibonacci_iter.qi
+$ cat fibonacci_iter.q
 
 fn main none () start
     arr fib
@@ -68,7 +68,7 @@ end
 ```
 
 ```bash
-$ two_sum.qi
+$ cat two_sum.q
 
 fn two_sum arr (arr a, num target) start
   arr res
@@ -91,16 +91,16 @@ end
 
 ## Running locally
 
-To try out Qi yourself, clone this repository first:
+To try out `qlang` yourself, clone this repository first:
 
 ```bash
-git clone https://github.com/malav-mehta/qi-interpreter.git
+git clone https://github.com/malav-mehta/qlang.git
 ```
 
 Compile the project using the Makefile:
 
 ```bash
-cd qi-interpreter
+cd qlang
 make
 ```
 
@@ -110,10 +110,10 @@ All done! To run a program, go to the build directory:
 cd build
 ```
 
-Finally, you can run the executable. To interpret code located at `path/to/file.qi`, run the following command:
+Finally, you can run the executable. To interpret code located at `path/to/file.q`, run the following command:
 
 ```shell
-./qi /path/to/file.qi
+./q /path/to/file.q
 ```
 
 ### Testing
