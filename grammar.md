@@ -1,15 +1,15 @@
-# qi-interpreter grammar
+# `qlang` grammar
 
 ## 1 Introduction
 
-Qi is a high level, weakly typed programming language, interpreted in C++ that
+`qlang` is a high level, weakly typed programming language, interpreted in C++ that
 focuses on core imperative programming paradigms.
 
 ## 2 Tokens
 
 ### 2.1 Supported character set
 
-Tokens are the smallest blocks of a Qi program from the perspective of the
+Tokens are the smallest blocks of a `qlang` program from the perspective of the
 interpreter. A token will must be one of the following:
 
 1. Number or boolean literal
@@ -37,7 +37,7 @@ regex for symbols. As with convention, the backslash character is used to mark
 an escape sequence. Examples:
 
 ```bash
-"qi language" | "awjdjk21h4j1kn321" | "111" | "\"qi\\nlanguage\"" | "\n" | "...+2"
+"qlang" | "awjdjk21h4j1kn321" | "111" | "\n" | "...+2"
 ```
 
 In the case of the backslash delimiter appearing prior to an unrecognized
@@ -78,7 +78,7 @@ Lexically, the following tokens are recognized operators:
 
 ### 2.7 Comments
 
-Comments are text in a .qi file that the interpreter scans but ignores. An
+Comments are text in a .q file that the interpreter scans but ignores. An
 inline comment begins with the `$` character, prompting the lexer to ignore the
 rest of the line. This applies to any sequence of characters and tokens. Note:
 comments cannot be nested inside of literals.
@@ -87,12 +87,12 @@ comments cannot be nested inside of literals.
 
 ### 3.1 Primitives
 
-The typing of a Qi variable has the effect of defining what the variable can
+The typing of a `qlang` variable has the effect of defining what the variable can
 and cannot do; not only are certain operators only available for specific types
 of variables, but some have built in methods and thereby different
 implementations. Some objects may contains other objects, for example variables
 with type `arr`. Variables must be declared with a type. Below is a table
-specifying the various basic types present in qi, and their corresponding
+specifying the various basic types present in `qlang`, and their corresponding
 functionality and sizes:
 
 | Type | Size     | Functionality                            |
@@ -106,18 +106,18 @@ functionality and sizes:
 
 Aside from these primitives, there are more complex objects:
 
-- `arr`, for example `[2, 4, "qi", 55]`, which is a list of objects that can be
-  composed of any Qi variable. Note that some `arr` methods only apply to arrays
+- `arr`, for example `[2, 4, "qlang", 55]`, which is a list of objects that can be
+  composed of any `qlang` variable. Note that some `arr` methods only apply to arrays
   with the same object type
 - `queues` and `stacks` are represented by their C++ counterparts, and can hold
   any object type as with `arr`
 - `sets` are hashable and unordered
-- `maps` are similar to `arrs`, but keys can be Qi objects that are not natural
+- `maps` are similar to `arrs`, but keys can be `qlang` objects that are not natural
   numbers
 
 ### 3.2 Built-in methods
 
-Qi types can invoke various functions that are used as utility (such as
+`qlang` types can invoke various functions that are used as utility (such as
 sorting, searching, arithmetic rounding) via methods that corresponding to
 specific types, all uniquely named. For each type, the methods have unique
 behavior and the functionality of a method may not be supported for every type.
@@ -211,7 +211,7 @@ identifier.method()
 
 ## 4 Program Model
 
-Programs are read by the interpreter as blocks. Qi enforces the following
+Programs are read by the interpreter as blocks. `qlang` enforces the following
 logical model for all programs
 
 ```
@@ -248,7 +248,7 @@ variables have been declared.
 
 ### 4.1 Naming and scoping
 
-Qi has memory environments that handle scoping and naming. Variable names must be unique withing each scope.
+`qlang` has memory environments that handle scoping and naming. Variable names must be unique withing each scope.
 
 The scope of a variable defines the locations in the code where it can be referenced and changed. For example, for the following code:
 
@@ -306,7 +306,7 @@ Example syntax for variable declarations is shown below:
 
 ```
 str x
-x = "qi language"
+x = "qlang"
 num y
 y = 2021
 arr arr1
@@ -316,7 +316,7 @@ Note: assignment and declaration are independent.
 
 ### 4.4 Expressions
 
-The Qi interpreter is required to go through the source code and build a tree
+The `qlang` interpreter is required to go through the source code and build a tree
 with parent and child nodes that can be used to the model the structure of the
 code. Expressions can include any of the following:
 
@@ -324,4 +324,4 @@ code. Expressions can include any of the following:
 - Calls
 - Operators
 
-The combination of these effectively creates the body of the Qi program, and dictates how actions are taken and what exactly the program does in essence.
+The combination of these effectively creates the body of the `qlang` program, and dictates how actions are taken and what exactly the program does in essence.
