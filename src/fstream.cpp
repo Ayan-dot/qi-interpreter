@@ -24,7 +24,7 @@ fstream::fstream() {
 /// validating the file and loading it into the linked list format
 /// \param file_name
 fstream::fstream(std::string file_name) {
-    if (file_name.size() <= 3 || file_name.substr(file_name.size() - 3) != ".qi")
+    if (file_name.size() <= 3 || file_name.substr(file_name.size() - 2) != ".q")
         err("invalid file name");
 
     std::ifstream f(file_name);

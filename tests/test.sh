@@ -5,7 +5,7 @@ RED="\033[0;31m"
 BLUE="\033[0;34m"
 NC="\033[0m"
 TEST_FOLDER_NAME="tests"
-QI="../../build/qi"
+QLANG="../../build/q"
 
 cd "$TEST_FOLDER_NAME"
 FOLDER_NAMES=$(ls -1 -d */)
@@ -18,9 +18,9 @@ do
     passed_test_count=0
     echo -e "$BLUE[info]$NC running tests for $folder_name"
 
-    while [[ -f "$test_number-in" ]] && [[ -f "$test_number-out" ]] && [[ -f "code.qi" ]]
+    while [[ -f "$test_number-in" ]] && [[ -f "$test_number-out" ]] && [[ -f "code.q" ]]
     do
-        $QI "code.qi" < "$test_number-in" > "$test_number-test" || ""
+        $QLANG "code.q" < "$test_number-in" > "$test_number-test" || ""
         if ! cmp -s "$test_number-out" "$test_number-test"; then
             echo -e "$RED[error]$NC $folder_name: test $test_number failed"
             echo "expected contents ($folder_name$test_number-out):"

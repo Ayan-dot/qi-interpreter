@@ -13,7 +13,7 @@ TARGET := test/test.qi
 # Command directives
 CXX := g++
 FLAGS := -std=c++17
-OUTPUT := qi
+OUTPUT := q
 COMMAND = -o
 
 # Set default goal
@@ -30,5 +30,5 @@ clean:
 	@rm ${BUILD}/*
 	@echo [info] build dir cleaned
 
-test:
+test: 
 	@bash ./tests/test.sh
