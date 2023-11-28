@@ -128,5 +128,3 @@ make test
 
 - C++
 - Bash
-
-If you find any bugs or have any questions, feel free to email us: [malavhmehta@outlook.com](mailto:malavhmehta@outlook.com).
